@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+
+<body>
+    <div class="registro-card">
+        <h1>Crear cuenta</h1>
+
+        <form method="POST" action="/registro">
+            <label for="nombre">Nombre:</label>
+            <input type="text" name="nombre" id="nombre" required>
+
+            <label for="correo">Correo:</label>
+            <input type="email" name="correo" id="correo" required>
+
+            <label for="contrasena">Contraseña:</label>
+            <input type="password" name="contrasena" id="contrasena" required>
+
+            <label for="telefono">Teléfono:</label>
+            <input type="text" name="telefono" id="telefono" required>
+
+            <p>Tipo de usuario:</p>
+            <label><input type="radio" name="tipo_usuario" value="cliente" checked> Cliente</label>
+            <label><input type="radio" name="tipo_usuario" value="empleado"> Empleado</label>
+
+            <button type="submit" class="btn">Registrarse</button>
+        </form>
+
+        <p class="login-link">¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
+
+        <button id="toggle-dark">🌙 Modo oscuro</button>
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('dark-mode', body.classList.contains('dark'));
+        });
+    </script>
+</body>
+
+</html>

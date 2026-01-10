@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Cliente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>
+                Bienvenido/a {{ usuario.nombre }} !!!
+                <span>(Cliente)</span>
+            </h1>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </header>
+
+        <nav class="nav">
+            <a href="/dashboard_cliente" class="nav-link">Inicio</a>
+            <a href="/reservar" class="nav-link">Reservar</a>
+            <a href="/servicios" class="nav-link">Servicios</a>
+            <a class="nav-link">Cerrar reserva/Pagar</a>
+            <a href="/logout" class="nav-link logout">Cerrar Sesión</a>
+
+            <button id="toggle-dark" class="nav-link nav-toggle" type="button">
+                🌙Modo oscuro
+            </button>
+        </nav>
+
+        <main>
+            <h2>Reservas</h2>
+
+            {% if reservas %}
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Habitación</th>
+                        <th>Desde</th>
+                        <th>Hasta</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td>{{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})</td>
+                        <td>{{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ reserva.fecha_fin.strftime('%Y-%m-%d') }}</td>
+                        <td class="estado{% if reserva.estado == 'Activa' %} activa{% elif reserva.estado == 'Finalizada' %} finalizada{% endif %}">
+                            {{ reserva.estado }}
+                        </td>
+
+                        <td class="acciones">
+                            <a href="{{ url_for('ver_detalles', id_reserva=reserva.id_reserva) }}" class="btn">Ver detalles</a>
+
+                            {% if reserva.estado == 'Activa' %}
+                            <form method="POST" action="{{ url_for('cerrar_reserva', id_reserva=reserva.id_reserva) }}"
+                                  style="display:inline">
+                                <button class="btn btn-secondary" type="submit">Pagar</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty">No hay reservas registradas.</p>
+            {% endif %}
+        </main>
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('dark-mode', body.classList.contains('dark'));
+        });
+    </script>
+
+</body>
+
+</html>
+

@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: ProyectoBases
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: Fish72
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    restart: unless-stopped

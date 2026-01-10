@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+
+<body>
+  <div class="login-card">
+    <h1>Iniciar sesión</h1>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flash-messages">
+        {% for category, msg in messages %}
+          <li class="flash {{ category }}">{{ msg }}</li>
+        {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+
+    <form method="POST" action="/login">
+      <label for="correo">Correo:</label>
+      <input type="email" name="correo" id="correo" required>
+
+      <label for="contrasena">Contraseña:</label>
+      <input type="password" name="contrasena" id="contrasena" required>
+
+      <button type="submit" class="btn">Ingresar</button>
+    </form>
+
+    <p class="registro">¿No tienes cuenta? <a href="/registro">Regístrate aquí</a></p>
+
+    <button id="toggle-dark">🌙 Modo oscuro</button>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('toggle-dark');
+    const body = document.body;
+
+    if (localStorage.getItem('dark-mode') === 'true') {
+      body.classList.add('dark');
+    }
+
+    toggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('dark-mode', body.classList.contains('dark'));
+    });
+  </script>
+</body>
+
+</html>
+

@@ -1,0 +1,308 @@
+import os
+from flask import Flask, render_template, request, redirect, session, flash
+from sqlalchemy.orm import joinedload
+from models import db, Usuario, Cliente, Empleado, Habitacion, Reserva, Servicio, ConsumoServicio, Pago
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+
+# ---------------------- CONFIG ----------------------
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "super_secret_key")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+# ---------------------- DECORADORES ----------------------
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if 'usuario_id' not in session:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return wrapper
+
+# ---------------------- RUTAS ----------------------
+@app.route('/')
+def home():
+    return redirect('/login')
+
+# --------- LOGIN ----------
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        correo = request.form['correo']
+        contrasena = request.form['contrasena']
+
+        usuario = Usuario.query.filter_by(correo=correo).first()
+        if usuario and check_password_hash(usuario.contrasena_hash, contrasena):
+            session['usuario_id'] = usuario.id_usuario
+            # Redirige según tipo de usuario
+            if hasattr(usuario, 'cliente') and usuario.cliente:
+                return redirect('/dashboard_cliente')
+            elif hasattr(usuario, 'empleado') and usuario.empleado:
+                return redirect('/dashboard_empleado')
+            else:
+                flash("Tipo de usuario desconocido", "error")
+                return redirect('/login')
+        else:
+            flash("Correo o contraseña incorrectos", "error")
+
+    return render_template('login.html')
+
+# --------- REGISTRO ----------
+@app.route('/registro', methods=['GET', 'POST'])
+def registro():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        contrasena = request.form['contrasena']
+        telefono = request.form['telefono']
+        tipo_usuario = request.form['tipo_usuario']  # "cliente" o "empleado"
+
+        # Evitar correo duplicado
+        if Usuario.query.filter_by(correo=correo).first():
+            flash("Correo ya registrado", "error")
+            return redirect('/registro')
+
+        hash_pw = generate_password_hash(contrasena)
+        usuario = Usuario(
+            nombre=nombre,
+            correo=correo,
+            contrasena_hash=hash_pw,
+            telefono=telefono
+        )
+
+        db.session.add(usuario)
+        db.session.commit()
+
+        if tipo_usuario == "cliente":
+            cliente = Cliente(id_usuario=usuario.id_usuario, fecha_registro=datetime.now())
+            db.session.add(cliente)
+        elif tipo_usuario == "empleado":
+            empleado = Empleado(id_usuario=usuario.id_usuario, fecha_contratacion=datetime.now(), salario=0, id_rol=1)
+            db.session.add(empleado)    
+
+        db.session.commit()
+        flash(f"Usuario {tipo_usuario} creado exitosamente!", "success")
+        return redirect('/login')
+
+    return render_template('registro.html')
+
+# --------- DASHBOARDS ----------
+@app.route('/dashboard_cliente')
+@login_required
+def dashboard_cliente():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    cliente = usuario.cliente
+
+    reservas = Reserva.query.options(
+        joinedload(Reserva.cliente).joinedload(Cliente.usuario),
+        joinedload(Reserva.habitacion),
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).filter_by(id_cliente=cliente.id_usuario, estado='Activa')\
+        .order_by(Reserva.fecha_inicio.desc()).all()
+
+    detalles_reservas = []
+
+    for reserva in reservas:
+        total_consumos = sum(c.subtotal for c in reserva.consumos)
+        precio_habitacion = reserva.habitacion.precio_noche if reserva.habitacion else 0
+
+        detalles_reservas.append({
+            "reserva": reserva,
+            "consumos": reserva.consumos,
+            "total": total_consumos + precio_habitacion
+        })
+
+    return render_template(
+        'dashboard_cliente.html',
+        usuario=usuario,
+        reservas=reservas
+    )
+
+@app.route('/dashboard_empleado')
+@login_required
+def dashboard_empleado():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not hasattr(usuario, 'empleado') or not usuario.empleado:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    reservas = Reserva.query.filter_by(estado='Activa').all()
+    return render_template('dashboard_empleado.html', usuario=usuario, reservas=reservas)
+
+# --------- GESTIONAR HABITACIONES ---------
+@app.route('/gestionar_habitaciones', methods=['GET', 'POST'])
+@login_required
+def gestionar_habitaciones():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not hasattr(usuario, 'empleado'):
+        return "Acceso denegado"
+
+    if request.method == 'POST':
+        numero = request.form['numero']
+        tipo = request.form['tipo']
+        precio = request.form['precio_noche']
+        habitacion = Habitacion(numero=numero, tipo=tipo, precio_noche=precio, estado='Disponible')
+        db.session.add(habitacion)
+        db.session.commit()
+        return redirect('/gestionar_habitaciones')
+
+    habitaciones = Habitacion.query.order_by(Habitacion.numero).all()
+    return render_template('gestionar_habitaciones.html', habitaciones=habitaciones)
+
+# --------- RESERVAS ----------
+@app.route('/reservar', methods=['GET', 'POST'])
+@login_required
+def reservar():
+    habitaciones = Habitacion.query.filter_by(estado='Disponible').all()
+
+    if request.method == 'POST':
+        fecha_inicio = datetime.strptime(request.form['fecha_inicio'], '%Y-%m-%d')
+        fecha_fin = datetime.strptime(request.form['fecha_fin'], '%Y-%m-%d')
+        id_habitacion = int(request.form['id_habitacion'])
+
+        cliente = Cliente.query.filter_by(id_usuario=session['usuario_id']).first()
+
+        reserva = Reserva(
+            fecha_inicio=fecha_inicio, 
+            fecha_fin=fecha_fin,
+            estado='Activa', 
+            id_cliente=cliente.id_usuario,  # usar id_cliente
+            id_habitacion=id_habitacion
+        )
+
+        habitacion = Habitacion.query.get(id_habitacion)
+        habitacion.estado = 'Ocupada'
+
+        db.session.add(reserva)
+        db.session.commit()
+
+        return redirect('/servicios')
+
+    return render_template('reservar.html', habitaciones=habitaciones)
+
+#--------- VER DETALLES DE LAS RESERVAS (PARA CLIENTES) ---------
+@app.route('/ver_detalles/<int:id_reserva>')
+@login_required
+def ver_detalles(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    reserva = Reserva.query.get(id_reserva)
+    if not reserva:
+        flash("Reserva no encontrada", "warning")
+        return redirect('/dashboard_cliente')
+
+    print(f"Detalles de la reserva {reserva.id_reserva}")
+    return f"""Detalles de la reserva {reserva.id_reserva} (temporal)
+            <a href='/dashboard_cliente'>Volver al dashboard</a>
+    """
+
+#--------- VER RESERVAS ---------
+@app.route('/ver_reservas')
+@login_required
+def ver_reservas():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not hasattr(usuario, 'empleado'):
+        return "Acceso denegado"
+
+    reservas = Reserva.query.order_by(Reserva.estado.desc(), Reserva.fecha_inicio.desc()).all()
+    return render_template('ver_reservas.html', reservas=reservas)
+
+# --------- SERVICIOS ----------
+@app.route('/servicios', methods=['GET', 'POST'])
+@login_required
+def servicios():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not hasattr(usuario, 'cliente') or not usuario.cliente:
+        flash("Solo clientes pueden agregar servicios", "error")
+        return redirect('/login')
+
+    servicios = Servicio.query.all()
+    cliente = usuario.cliente
+
+    reserva = Reserva.query.filter_by(id_cliente=cliente.id_usuario, estado='Activa').order_by(Reserva.id_reserva.desc()).first()
+
+    if not reserva:
+        flash("No tienes una reserva activa", "warning")
+        return redirect('/dashboard_cliente')
+
+    if request.method == 'POST':
+        id_servicio = int(request.form['id_servicio'])
+        cantidad = int(request.form['cantidad'])
+
+        servicio = Servicio.query.get(id_servicio)
+        subtotal = servicio.precio * cantidad
+
+        consumo = ConsumoServicio(id_reserva=reserva.id_reserva, id_servicio=id_servicio, cantidad=cantidad, subtotal=subtotal)
+        db.session.add(consumo)
+        db.session.commit()
+
+        flash("Servicio agregado correctamente", "success")
+        return redirect('/dashboard_cliente')
+
+    return render_template('servicios.html', servicios=servicios)
+
+# --------- GESTIONAR SERVICIOS ---------
+@app.route('/gestionar_servicios', methods=['GET', 'POST'])
+@login_required
+def gestionar_servicios():
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not hasattr(usuario, 'empleado'):
+        return "Acceso denegado"
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        precio = float(request.form['precio'])
+        servicio = Servicio(nombre=nombre, precio=precio)
+        db.session.add(servicio)
+        db.session.commit()
+        return redirect('/gestionar_servicios')
+
+    servicios = Servicio.query.order_by(Servicio.nombre).all()
+    return render_template('gestionar_servicios.html', servicios=servicios)
+
+# --------- PAGAR RESERVA ---------
+@app.route('/cerrar_reserva/<int:id_reserva>', methods=['POST'])
+@login_required
+def cerrar_reserva(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Solo clientes pueden cerrar reservas", "error")
+        return redirect('/login')
+
+    reserva = Reserva.query.get(id_reserva)
+    if not reserva:
+        flash("Reserva no encontrada", "error")
+        return redirect('/dashboard_cliente')
+
+    print(f"Reserva {reserva.id_reserva} pagada (temporal)")
+    
+    return f"""
+        <h2>Reserva {reserva.id_reserva} pagada (temporal)</h2>
+        <a href='/dashboard_cliente'>Volver al dashboard</a>
+    """
+# --------- LOGOUT ----------
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("Sesión cerrada", "warning")
+    return redirect('/login')
+
+# ---------------------- RUN ----------------------
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
+
+
+

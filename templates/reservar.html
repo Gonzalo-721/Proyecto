@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reservar Habitación</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reservar.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Reservar Habitación</h1>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </header>
+
+        <nav class="nav">
+            <a href="/dashboard_cliente" class="nav-link">Inicio</a>
+            <a href="/reservar" class="nav-link">Reservar</a>
+            <a href="/servicios" class="nav-link">Servicios</a>
+            <a href="/cerrar_reserva" class="nav-link">Cerrar Reserva / Pagar</a>
+            <a href="/logout" class="nav-link">Cerrar Sesión</a>
+
+            <button id="toggle-dark" class="nav-link nav-toggle" type="button">
+                🌙 Modo oscuro
+            </button>
+        </nav>
+
+        <main>
+            <h2>Nueva reserva</h2>
+
+            <form method="POST" action="/reservar" class="form-card">
+                <div class="form-group">
+                    <label>Fecha inicio</label>
+                    <input type="date" name="fecha_inicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha fin</label>
+                    <input type="date" name="fecha_fin" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Habitación</label>
+                    <select name="id_habitacion" required>
+                        {% for h in habitaciones %}
+                        <option value="{{ h.id_habitacion }}">
+                            {{ h.numero }} - {{ h.tipo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Reservar</button>
+            </form>
+        </main>
+
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('dark-mode', body.classList.contains('dark'));
+        });
+    </script>
+
+</body>
+
+</html>
+
