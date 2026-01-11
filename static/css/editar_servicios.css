@@ -133,6 +133,13 @@ select:focus {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
+.tabla td:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
 .btn,
 .btn-secondary,
 .btn-danger,
@@ -159,6 +166,9 @@ select:focus {
     background-color: var(--primary);
 }
 
+.btn-primary {
+    margin-left: -10px;
+}
 .btn:hover {
     background-color: var(--primary-dark);
     transform: translateY(-2px);
