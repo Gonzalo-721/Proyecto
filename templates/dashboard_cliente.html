@@ -30,6 +30,18 @@
             </button>
         </nav>
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for message in messages %}
+                <div class="flash success">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
         <main>
             <h2>Reservas</h2>
 
@@ -124,3 +136,4 @@
 </body>
 
 </html>
+
