@@ -19,9 +19,7 @@
         {% if messages %}
         <div class="flash-messages">
             {% for category, message in messages %}
-            <div class="flash {{ category }}">
-                {{ message }}
-            </div>
+            <div class="flash {{ category }}">{{ message }}</div>
             {% endfor %}
         </div>
         {% endif %}
@@ -29,7 +27,6 @@
 
         <main>
             <h2>Información general</h2>
-
             <p><strong>Habitación:</strong> {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})</p>
             <p><strong>Fechas:</strong> {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }} → {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}</p>
             <p><strong>Estado:</strong> {{ reserva.estado }}</p>
@@ -66,5 +63,4 @@
 
     </div>
 </body>
-
 </html>
