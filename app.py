@@ -194,18 +194,54 @@ def reservar():
 def ver_detalles(id_reserva):
     usuario = Usuario.query.get(session['usuario_id'])
     if not usuario or not usuario.cliente:
-        flash("Acceso no autorizado", "error")
+        flash("Acceso no autorizado")
         return redirect('/login')
 
-    reserva = Reserva.query.get(id_reserva)
-    if not reserva:
-        flash("Reserva no encontrada", "warning")
+    reserva = Reserva.query.options(
+        joinedload(Reserva.habitacion),
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).get(id_reserva)
+
+    if not reserva or reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("Reserva no encontrada", "error")
         return redirect('/dashboard_cliente')
 
-    print(f"Detalles de la reserva {reserva.id_reserva}")
-    return f"""Detalles de la reserva {reserva.id_reserva} (temporal)
-            <a href='/dashboard_cliente'>Volver al dashboard</a>
-    """
+    total_consumos = sum(c.subtotal for c in reserva.consumos)
+    precio_habitacion = reserva.habitacion.precio_noche
+    total = total_consumos + precio_habitacion
+
+    return render_template(
+        'detalles_reserva.html',
+        reserva=reserva,
+        total=total
+    )
+
+#--------- PAGAR LA RESERVA ---------
+@app.route('/pago/<int:id_reserva>')
+@login_required
+def pago(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Acceso no autorizado")
+        return redirect('/login')
+
+    reserva = Reserva.query.options(
+        joinedload(Reserva.habitacion),
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).get(id_reserva)
+
+    if not reserva or reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("Reserva no encontrada", "error")
+        return redirect('/dashboard_cliente')
+
+    total_consumos = sum(c.subtotal for c in reserva.consumos)
+    total = total_consumos + reserva.habitacion.precio_noche 
+
+    return render_template(
+        'pago_reserva.html',
+        reserva=reserva,
+        total=total
+    )
 
 #--------- VER RESERVAS ---------
 @app.route('/ver_reservas')
@@ -271,26 +307,28 @@ def gestionar_servicios():
     servicios = Servicio.query.order_by(Servicio.nombre).all()
     return render_template('gestionar_servicios.html', servicios=servicios)
 
-# --------- PAGAR RESERVA ---------
+# --------- CERRAR RESERVA ---------
 @app.route('/cerrar_reserva/<int:id_reserva>', methods=['POST'])
 @login_required
 def cerrar_reserva(id_reserva):
     usuario = Usuario.query.get(session['usuario_id'])
     if not usuario or not usuario.cliente:
-        flash("Solo clientes pueden cerrar reservas", "error")
+        flash("Solo clientes pueden cerrar reservas", "warning")
         return redirect('/login')
 
     reserva = Reserva.query.get(id_reserva)
-    if not reserva:
+    if not reserva or reserva.id_cliente != usuario.cliente.id_usuario:
         flash("Reserva no encontrada", "error")
         return redirect('/dashboard_cliente')
 
-    print(f"Reserva {reserva.id_reserva} pagada (temporal)")
-    
-    return f"""
-        <h2>Reserva {reserva.id_reserva} pagada (temporal)</h2>
-        <a href='/dashboard_cliente'>Volver al dashboard</a>
-    """
+    reserva.estado = 'Finalizada'
+    reserva.habitacion.estado = 'Disponible'
+
+    db.session.commit()
+
+    flash("Reserva pagada correctamente", "success")
+    return redirect('/dashboard_cliente')
+
 # --------- LOGOUT ----------
 @app.route('/logout')
 def logout():
@@ -302,7 +340,3 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
-
-
