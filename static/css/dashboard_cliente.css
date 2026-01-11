@@ -250,10 +250,6 @@ form {
     display: inline-flex;
 }
 
-.flash-messages {
-    margin-bottom: 15px;
-}
-
 .flash {
     padding: 10px 15px;
     border-radius: 6px;
@@ -267,15 +263,18 @@ form {
 
 .flash.success {
     background-color: #28a745;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
 }
 
 .flash.error {
-    background-color: #dc3545; 
+    background-color: #dc3545;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
 }
 
 .flash.info {
-    background-color: #ffc107; 
+    background-color: #ffc107;
     color: #333;
+    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4);
 }
 
 body.dark .flash {
@@ -285,16 +284,21 @@ body.dark .flash {
 
 body.dark .flash.success {
     background-color: #2ecc71;
+    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
 }
 
 body.dark .flash.error {
     background-color: #c82333;
+    box-shadow: 0 4px 10px rgba(200, 35, 51, 0.4);
 }
 
 body.dark .flash.info {
     background-color: #f39c12;
     color: #212121;
+    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
 }
+
+
 
 
 
