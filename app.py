@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, request, redirect, session, flash
 from sqlalchemy.orm import joinedload
 from models import db, Usuario, Cliente, Empleado, Habitacion, Reserva, Servicio, ConsumoServicio, Pago
 from datetime import datetime
@@ -188,7 +188,7 @@ def reservar():
 
     return render_template('reservar.html', habitaciones=habitaciones)
 
-# --------- VER DETALLES DE LAS RESERVAS (PARA CLIENTES) ---------
+#--------- VER DETALLES DE LAS RESERVAS (PARA CLIENTES) ---------
 @app.route('/detalles_reserva/<int:id_reserva>')
 @login_required
 def detalles_reserva(id_reserva):
@@ -216,7 +216,7 @@ def detalles_reserva(id_reserva):
         total=total
     )
 
-# --------- PAGAR LA RESERVA ---------
+#--------- PAGAR LA RESERVA ---------
 @app.route('/pago_reserva/<int:id_reserva>')
 @login_required
 def pago_reserva(id_reserva):
@@ -243,7 +243,7 @@ def pago_reserva(id_reserva):
         total=total
     )
 
-# --------- VER RESERVAS ---------
+#--------- VER RESERVAS ---------
 @app.route('/ver_reservas')
 @login_required
 def ver_reservas():
@@ -329,27 +329,54 @@ def cerrar_reserva(id_reserva):
     flash("Reserva pagada correctamente", "success")
     return redirect('/dashboard_cliente')
 
-# --------- CANCELAR RESERVA ---------
+#--------- CANCELAR RESERVA ---------
 @app.route('/cancelar_reserva/<int:id_reserva>', methods=['POST'])
+@login_required
 def cancelar_reserva(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Acción no autorizada", "error")
+        return redirect('/login')
+
     reserva = Reserva.query.get_or_404(id_reserva)
 
-    if reserva.estado == 'Activa':
-        reserva.estado = 'Finalizada'
-        reserva.habitacion.estado = 'Disponible'
+    if reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("No puedes cancelar esta reserva", "error")
+        return redirect('/dashboard_cliente')
 
-        db.session.commit()
-        flash('Reserva cancelada correctamente', "success")
+    reserva.estado = 'Cancelada'
+    reserva.habitacion.estado = 'Disponible'
 
-    return redirect(url_for('dashboard_cliente'))
+    db.session.commit()
+    flash("Reserva cancelada correctamente", "success")
+
+    return redirect('/dashboard_cliente')
 
 # --------- CONFIRMAR CANCELACIÓN ---------
-@app.route('/cancelar_reserva/<int:id_reserva>')
+@app.route('/confirmar_cancelacion/<int:id_reserva>')
+@login_required
 def confirmar_cancelacion(id_reserva):
-    reserva = Reserva.query.get_or_404(id_reserva)
-    total = calcular_total(reserva)
+    usuario = Usuario.query.get(session['usuario_id'])
+    if not usuario or not usuario.cliente:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
 
-    return render_template('cancelar_reserva.html', reserva=reserva, total=total)
+    reserva = Reserva.query.options(
+        joinedload(Reserva.habitacion),
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).get(id_reserva)
+
+    if not reserva or reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("Reserva no encontrada", "error")
+        return redirect('/dashboard_cliente')
+
+    total_consumos = sum(c.subtotal for c in reserva.consumos)
+    total = total_consumos + reserva.habitacion.precio_noche
+
+    return render_template('cancelar_reserva.html',
+        reserva=reserva,
+        total=total
+    )
 
 # --------- LOGOUT ----------
 @app.route('/logout')
@@ -362,6 +389,3 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
-
