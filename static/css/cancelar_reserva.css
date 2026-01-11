@@ -137,4 +137,48 @@ ul {
     align-items: center;
     gap: 10px;
     margin-top: 15px;
+
+}
+
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.flash {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.flash.warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+body.dark .flash.error {
+    background-color: #5a1e24;
+    color: #ffd6d9;
+}
+
+body.dark .flash.success {
+    background-color: #1f4d2b;
+    color: #b6f2c2;
+}
+
+body.dark .flash.warning {
+    background-color: #665c1e;
+    color: #fff1b8;
 }
