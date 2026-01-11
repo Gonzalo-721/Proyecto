@@ -12,7 +12,8 @@
 
         <header class="header">
             <h1>Detalles de la reserva</h1>
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+
+            <button id="toggle-dark" class="nav-toggle" type="button">🌙 Modo oscuro</button>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -62,5 +63,20 @@
         </main>
 
     </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('dark-mode', body.classList.contains('dark'));
+        });
+    </script>
+
 </body>
 </html>
