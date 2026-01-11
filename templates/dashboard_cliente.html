@@ -30,18 +30,6 @@
             </button>
         </nav>
 
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="flash-messages">
-              {% for message in messages %}
-                 <div class="flash success">
-                   {{ message }}
-                 </div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
         <main>
             <h2>Reservas</h2>
 
@@ -77,6 +65,12 @@
                                 class="btn btn-secondary">
                                 Pagar
                             </a>
+
+                            <button type="button" class="btn btn-danger"
+                                onclick="mostrarModal('{{ reserva.id_reserva }}')">
+
+                                Cancelar
+                            </button>
                             {% endif %}
                         </td>
 
@@ -88,6 +82,17 @@
             <p class="empty">No hay reservas registradas.</p>
             {% endif %}
         </main>
+    </div>
+
+    <div id="modalCancelar" class="modal-custom">
+        <div class="modal-contenido">
+            <p>¿Desea cancelar esta reserva?</p>
+
+            <form id="formCancelar" method="POST">
+                <button type="submit" class="btn btn-danger">Sí, cancelar</button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">No</button>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -104,7 +109,18 @@
         });
     </script>
 
+    <script>
+        function mostrarModal(idReserva) {
+            const form = document.getElementById('formCancelar');
+            form.action = `/cancelar_reserva/${idReserva}`;
+            document.getElementById('modalCancelar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCancelar').style.display = 'none';
+        }
+    </script>
+
 </body>
 
 </html>
-
