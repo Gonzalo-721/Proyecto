@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar pago</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
+</head>
+
+<body>
+    <div class="container">
+
+        <header class="header">
+            <h1>Confirmar pago</h1>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </header>
+
+        <main>
+            <h2>Resumen de la reserva</h2>
+
+            <p><strong>Habitación:</strong>
+                {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})
+            </p>
+
+            <p><strong>Fechas:</strong>
+                {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}
+                →
+                {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}
+            </p>
+
+            <p><strong>Precio por noche:</strong>
+                ${{ reserva.habitacion.precio_noche }}
+            </p>
+
+            <h3>Servicios consumidos</h3>
+            <ul>
+                {% for c in reserva.consumos %}
+                <li>
+                    {{ c.servicio.nombre }} x{{ c.cantidad }}
+                    — ${{ c.subtotal }}
+                </li>
+                {% else %}
+                <li>No se registraron servicios</li>
+                {% endfor %}
+            </ul>
+
+            <h2>Total a pagar: ${{ total }}</h2>
+
+            <div class="acciones">
+                <form method="POST" action="{{ url_for('cerrar_reserva', id_reserva=reserva.id_reserva) }}"
+                    style="display:inline">
+                    <button type="submit" class="btn btn-secondary">
+                        Confirmar pago
+                    </button>
+                </form>
+
+                <a href="{{ url_for('dashboard_cliente') }}" class="btn">
+                    Cancelar
+                </a>
+            </div>
+        </main>
+
+    </div>
+</body>
+
+</html>

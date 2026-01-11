@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles de la reserva</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
+</head>
+
+<body>
+    <div class="container">
+
+        <header class="header">
+            <h1>Detalles de la reserva</h1>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </header>
+
+        <main>
+            <h2>Información general</h2>
+
+            <p><strong>Habitación:</strong>
+                {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})
+            </p>
+
+            <p><strong>Fechas:</strong>
+                {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}
+                →
+                {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}
+            </p>
+
+            <p><strong>Estado:</strong>
+                {{ reserva.estado }}
+            </p>
+
+            <p><strong>Precio por noche:</strong>
+                ${{ reserva.habitacion.precio_noche }}
+            </p>
+            <br>
+
+            <h2>Servicios consumidos</h2>
+
+            <ul>
+                {% for c in reserva.consumos %}
+                <li>
+                    {{ c.servicio.nombre }}
+                    (x{{ c.cantidad }})
+                    — ${{ c.subtotal }}
+                </li>
+                {% else %}
+                <li>No se registraron servicios</li>
+                {% endfor %}
+            </ul>
+            <br>
+
+            <h2>Total acumulado</h2>
+            <p class="total">
+                <strong>${{ total }}</strong>
+            </p>
+
+            <div class="acciones">
+                <a href="{{ url_for('dashboard_cliente') }}" class="btn">
+                    Volver al dashboard
+                </a>
+
+                {% if reserva.estado == 'Activa' %}
+                <a href="{{ url_for('pago_reserva', id_reserva=reserva.id_reserva) }}" class="btn btn-secondary">
+                    Ir a pagar
+                </a>
+                {% endif %}
+            </div>
+        </main>
+
+    </div>
+</body>
+
+</html>
