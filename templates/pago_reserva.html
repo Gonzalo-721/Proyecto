@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Confirmar pago</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pago_reserva.css') }}">
 </head>
 
 <body>
@@ -12,7 +12,10 @@
 
         <header class="header">
             <h1>Confirmar pago</h1>
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+
+            <button id="toggle-dark" class="nav-toggle" type="button">
+                🌙 Modo oscuro
+            </button>
         </header>
 
         <main>
@@ -47,20 +50,37 @@
             <h2>Total a pagar: ${{ total }}</h2>
 
             <div class="acciones">
-                <form method="POST" action="{{ url_for('cerrar_reserva', id_reserva=reserva.id_reserva) }}"
-                    style="display:inline">
+                <form method="POST" action="{{ url_for('cerrar_reserva', id_reserva=reserva.id_reserva) }}">
                     <button type="submit" class="btn btn-secondary">
                         Confirmar pago
                     </button>
                 </form>
 
-                <a href="{{ url_for('dashboard_cliente') }}" class="btn">
+                <a href="{{ url_for('dashboard_cliente') }}" class="btn-danger">
                     Cancelar
                 </a>
             </div>
         </main>
 
     </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem(
+                'dark-mode',
+                body.classList.contains('dark')
+            );
+        });
+    </script>
+
 </body>
 
 </html>
