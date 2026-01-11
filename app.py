@@ -384,59 +384,58 @@ def editar_servicios(id_reserva):
 
     original_ids = [c.id_consumo for c in reserva.consumos]
 
-    if request.method == 'POST':
-        accion = request.form.get('accion')
-        
+if request.method == 'POST':
+    accion = request.form.get('accion')
+
     if accion == "cancelar":
         flash("Cambios cancelados", "warning")
         return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
-        elif accion == "añadir":
-            id_servicio_nuevo = request.form.get('id_servicio_nuevo')
-            cantidad_nuevo = request.form.get('cantidad_nuevo')
+    elif accion == "añadir":
+        id_servicio_nuevo = request.form.get('id_servicio_nuevo')
+        cantidad_nuevo = request.form.get('cantidad_nuevo')
 
-            if not id_servicio_nuevo or not cantidad_nuevo or int(cantidad_nuevo) <= 0:
-                flash("Selecciona un servicio válido y cantidad mayor a 0", "warning")
-            else:
-                servicio = Servicio.query.get(int(id_servicio_nuevo))
-                subtotal = servicio.precio * int(cantidad_nuevo)
+        if not id_servicio_nuevo or not cantidad_nuevo or int(cantidad_nuevo) <= 0:
+            flash("Selecciona un servicio válido y cantidad mayor a 0", "warning")
+        else:
+            servicio = Servicio.query.get(int(id_servicio_nuevo))
+            subtotal = servicio.precio * int(cantidad_nuevo)
 
-                consumo = ConsumoServicio(
-                    id_reserva=id_reserva,
-                    id_servicio=servicio.id_servicio,
-                    cantidad=int(cantidad_nuevo),
-                    subtotal=subtotal
-                )
-                db.session.add(consumo)
-                db.session.commit()
-                flash(f"Servicio '{servicio.nombre}' agregado correctamente", "success")
-
-            return redirect(url_for('editar_servicios', id_reserva=id_reserva))
-
-        elif accion == "confirmar":
-            ConsumoServicio.query.filter_by(id_reserva=id_reserva).delete()
-
-            ids = request.form.getlist('id_servicio[]')
-            cantidades = request.form.getlist('cantidad[]')
-
-            for id_s, cant in zip(ids, cantidades):
-                if not id_s or int(cant) <= 0:
-                    continue
-                servicio = Servicio.query.get(int(id_s))
-                subtotal = servicio.precio * int(cant)
-                consumo = ConsumoServicio(
-                    id_reserva=id_reserva,
-                    id_servicio=servicio.id_servicio,
-                    cantidad=int(cant),
-                    subtotal=subtotal
-                )
-                db.session.add(consumo)
-
+            consumo = ConsumoServicio(
+                id_reserva=id_reserva,
+                id_servicio=servicio.id_servicio,
+                cantidad=int(cantidad_nuevo),
+                subtotal=subtotal
+            )
+            db.session.add(consumo)
             db.session.commit()
-            flash("Cambios confirmados", "success")
-            return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
+            flash(f"Servicio '{servicio.nombre}' agregado correctamente", "success")
 
-    # ------------------ GET ------------------
+        return redirect(url_for('editar_servicios', id_reserva=id_reserva))
+
+    elif accion == "confirmar":
+        ConsumoServicio.query.filter_by(id_reserva=id_reserva).delete()
+
+        ids = request.form.getlist('id_servicio[]')
+        cantidades = request.form.getlist('cantidad[]')
+
+        for id_s, cant in zip(ids, cantidades):
+            if not id_s or int(cant) <= 0:
+                continue
+            servicio = Servicio.query.get(int(id_s))
+            subtotal = servicio.precio * int(cant)
+            consumo = ConsumoServicio(
+                id_reserva=id_reserva,
+                id_servicio=servicio.id_servicio,
+                cantidad=int(cant),
+                subtotal=subtotal
+            )
+            db.session.add(consumo)
+
+        db.session.commit()
+        flash("Cambios confirmados", "success")
+        return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
+
     return render_template(
         'editar_servicios.html',
         reserva=reserva,
@@ -545,6 +544,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
