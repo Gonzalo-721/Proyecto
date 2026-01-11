@@ -5,6 +5,7 @@ from models import db, Usuario, Cliente, Empleado, Habitacion, Reserva, Servicio
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from decimal import Decimal
 
 # ---------------------- CONFIG ----------------------
 app = Flask(__name__)
@@ -401,7 +402,7 @@ def editar_servicios(id_reserva):
                     session['consumos_temporales'] = []
 
                 servicio = Servicio.query.get(int(id_servicio_nuevo))
-                subtotal = servicio.precio * int(cantidad_nuevo)
+                subtotal = float(servicio.precio) * int(cantidad_nuevo)
 
                 found = False
                 for temp in session['consumos_temporales']:
@@ -420,7 +421,7 @@ def editar_servicios(id_reserva):
                     })
 
                 session.modified = True
-                flash(f"Servicio '{servicio.nombre}' agregado temporalmente", "success")
+                flash(f"Servicio '{servicio.nombre}' agregado temporalmente: ${subtotal:.2f}", "success")
 
             return redirect(url_for('editar_servicios', id_reserva=id_reserva))
 
@@ -434,7 +435,7 @@ def editar_servicios(id_reserva):
                 id_s = int(id_s)
                 cant = int(cant)
                 servicio = Servicio.query.get(id_s)
-                subtotal = servicio.precio * cant
+                subtotal = float(servicio.precio) * cant
 
                 consumo = ConsumoServicio.query.filter_by(
                     id_reserva=id_reserva,
@@ -473,8 +474,8 @@ def editar_servicios(id_reserva):
 
             db.session.commit()
             flash("Cambios confirmados", "success")
-
             session.pop('consumos_temporales', None)
+
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
     consumos = list(reserva.consumos)
@@ -589,6 +590,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
