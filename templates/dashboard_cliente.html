@@ -78,11 +78,10 @@
                                 Pagar
                             </a>
 
-                            <a href="{{ url_for('cancelar_reserva', id_reserva=reserva.id_reserva) }}"
-                                class="btn btn-danger">
+                            <a href="{{ url_for('confirmar_cancelacion', id_reserva=reserva.id_reserva) }}"
+                               class="btn btn-danger">
                                 Cancelar
                             </a>
-
                             {% endif %}
                         </td>
 
@@ -113,3 +112,4 @@
 </body>
 
 </html>
+
