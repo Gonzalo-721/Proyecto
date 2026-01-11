@@ -315,6 +315,25 @@ def servicios():
 
     return render_template('servicios.html', servicios=servicios)
 
+# --------- ELIMINAR SERVICIOS ---------
+@app.route('/eliminar_servicio/<int:id_consumo>', methods=['POST'])
+@login_required
+def eliminar_servicio(id_consumo):
+    usuario = Usuario.query.get(session['usuario_id'])
+
+    consumo = ConsumoServicio.query.get_or_404(id_consumo)
+    reserva = Reserva.query.get(consumo.id_reserva)
+
+    if not usuario or not usuario.cliente or reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    db.session.delete(consumo)
+    db.session.commit()
+    flash("Servicio eliminado correctamente", "success")
+    
+    return redirect(url_for('editar_servicios', id_reserva=reserva.id_reserva))
+
 # --------- AÑADIR SERVICIOS ---------
 @app.route('/agregar_servicio/<int:id_reserva>', methods=['POST'])
 @login_required
@@ -498,6 +517,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
