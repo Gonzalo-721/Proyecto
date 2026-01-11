@@ -386,6 +386,7 @@ def editar_servicios(id_reserva):
         accion = request.form.get('accion')
 
         if accion == "cancelar":
+            session.pop('consumos_temporales', None)
             flash("Cambios cancelados", "warning")
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
@@ -402,56 +403,81 @@ def editar_servicios(id_reserva):
                 servicio = Servicio.query.get(int(id_servicio_nuevo))
                 subtotal = servicio.precio * int(cantidad_nuevo)
 
-                session['consumos_temporales'].append({
-                    'id_servicio': servicio.id_servicio,
-                    'nombre': servicio.nombre,
-                    'cantidad': int(cantidad_nuevo),
-                    'subtotal': subtotal
-                })
-                session.modified = True
+                found = False
+                for temp in session['consumos_temporales']:
+                    if temp['id_servicio'] == servicio.id_servicio:
+                        temp['cantidad'] += int(cantidad_nuevo)
+                        temp['subtotal'] += subtotal
+                        found = True
+                        break
 
+                if not found:
+                    session['consumos_temporales'].append({
+                        'id_servicio': servicio.id_servicio,
+                        'nombre': servicio.nombre,
+                        'cantidad': int(cantidad_nuevo),
+                        'subtotal': subtotal
+                    })
+
+                session.modified = True
                 flash(f"Servicio '{servicio.nombre}' agregado temporalmente", "success")
 
             return redirect(url_for('editar_servicios', id_reserva=id_reserva))
 
         elif accion == "confirmar":
-            ConsumoServicio.query.filter_by(id_reserva=id_reserva).delete()
-
             ids = request.form.getlist('id_servicio[]')
             cantidades = request.form.getlist('cantidad[]')
 
             for id_s, cant in zip(ids, cantidades):
                 if not id_s or int(cant) <= 0:
                     continue
-                servicio = Servicio.query.get(int(id_s))
-                subtotal = servicio.precio * int(cant)
+                id_s = int(id_s)
+                cant = int(cant)
+                servicio = Servicio.query.get(id_s)
+                subtotal = servicio.precio * cant
 
-                consumo = ConsumoServicio(
+                consumo = ConsumoServicio.query.filter_by(
                     id_reserva=id_reserva,
-                    id_servicio=servicio.id_servicio,
-                    cantidad=int(cant),
-                    subtotal=subtotal
-                )
-                db.session.add(consumo)
+                    id_servicio=id_s
+                ).first()
+
+                if consumo:
+                    consumo.cantidad = cant
+                    consumo.subtotal = subtotal
+                else:
+                    consumo = ConsumoServicio(
+                        id_reserva=id_reserva,
+                        id_servicio=id_s,
+                        cantidad=cant,
+                        subtotal=subtotal
+                    )
+                    db.session.add(consumo)
 
             for temp in session.get('consumos_temporales', []):
-                consumo = ConsumoServicio(
+                consumo = ConsumoServicio.query.filter_by(
                     id_reserva=id_reserva,
-                    id_servicio=temp['id_servicio'],
-                    cantidad=temp['cantidad'],
-                    subtotal=temp['subtotal']
-                )
-                db.session.add(consumo)
+                    id_servicio=temp['id_servicio']
+                ).first()
+
+                if consumo:
+                    consumo.cantidad += temp['cantidad']
+                    consumo.subtotal += temp['subtotal']
+                else:
+                    consumo = ConsumoServicio(
+                        id_reserva=id_reserva,
+                        id_servicio=temp['id_servicio'],
+                        cantidad=temp['cantidad'],
+                        subtotal=temp['subtotal']
+                    )
+                    db.session.add(consumo)
 
             db.session.commit()
             flash("Cambios confirmados", "success")
 
             session.pop('consumos_temporales', None)
-
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
     consumos = list(reserva.consumos)
-
     consumos_temporales = session.get('consumos_temporales', [])
 
     return render_template(
@@ -563,6 +589,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
