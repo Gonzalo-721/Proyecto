@@ -384,29 +384,41 @@ def editar_servicios(id_reserva):
     servicios = Servicio.query.all()
 
     if request.method == 'POST':
-        ConsumoServicio.query.filter_by(
-            id_reserva=reserva.id_reserva
-        ).delete()
+        if "cancelar" in request.form:
+            flash("Cambios cancelados", "info")
+            return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
         ids = request.form.getlist('id_servicio[]')
         cantidades = request.form.getlist('cantidad[]')
 
+        if not ids or all(i == "" for i in ids):
+            flash("No se seleccionó ningún servicio", "warning")
+            return redirect(url_for('editar_servicios', id_reserva=id_reserva))
+
+        ConsumoServicio.query.filter_by(id_reserva=reserva.id_reserva).delete()
+
+        servicios_validos = []
+
         for id_servicio, cantidad in zip(ids, cantidades):
-            if not id_servicio:
+            if not id_servicio or not cantidad or int(cantidad) <= 0:
+                continue
+            servicio = Servicio.query.get(int(id_servicio))
+            if not servicio:
                 continue
 
-            servicio = Servicio.query.get(int(id_servicio))
             subtotal = servicio.precio * int(cantidad)
-
             consumo = ConsumoServicio(
                 id_reserva=reserva.id_reserva,
                 id_servicio=servicio.id_servicio,
                 cantidad=int(cantidad),
                 subtotal=subtotal
             )
-            db.session.add(consumo)
+            servicios_validos.append(consumo)
 
+        if servicios_validos:
+            db.session.add_all(servicios_validos)
         db.session.commit()
+
         flash("Servicios actualizados correctamente", "success")
         return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
@@ -517,6 +529,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
