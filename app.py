@@ -222,7 +222,7 @@ def detalles_reserva(id_reserva):
 def pago_reserva(id_reserva):
     usuario = Usuario.query.get(session['usuario_id'])
     if not usuario or not usuario.cliente:
-        flash("Acceso no autorizado")
+        flash("Acceso no autorizado", "error")
         return redirect('/login')
 
     reserva = Reserva.query.options(
@@ -280,7 +280,7 @@ def servicios():
         id_servicio = request.form.get('id_servicio')
 
         if not id_servicio or id_servicio == "0":
-            flash("No se agregó ningún servicio", "info")
+            flash("No se agregó ningún servicio", "warning")
             return redirect('/dashboard_cliente')
 
         cantidad = request.form.get('cantidad')
@@ -313,15 +313,12 @@ def servicios():
         flash("Servicio agregado correctamente", "success")
         return redirect('/dashboard_cliente')
 
-    return render_template(
-        'servicios.html',
-        servicios=servicios
-    )
+    return render_template('servicios.html', servicios=servicios)
 
 # --------- AÑADIR SERVICIOS ---------
-@app.route('/agregar_servicio', methods=['POST'])
+@app.route('/agregar_servicio/<int:id_reserva>', methods=['POST'])
 @login_required
-def agregar_servicio_reserva(id_reserva):
+def agregar_servicio(id_reserva):
     reserva = Reserva.query.get_or_404(id_reserva)
 
     id_servicio = request.form.get('id_servicio')
@@ -368,7 +365,6 @@ def editar_servicios(id_reserva):
     servicios = Servicio.query.all()
 
     if request.method == 'POST':
-        # borrar consumos anteriores
         ConsumoServicio.query.filter_by(
             id_reserva=reserva.id_reserva
         ).delete()
@@ -502,6 +498,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
