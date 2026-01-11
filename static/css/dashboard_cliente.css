@@ -250,53 +250,47 @@ form {
     display: inline-flex;
 }
 
-.flash {
-    padding: 10px 15px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    color: white;
-    font-weight: 500;
-    font-size: 14px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+.flash-messages { 
+    list-style: none;
+    padding: 0;
+    margin-bottom: 15px;
 }
 
-.flash.success {
-    background-color: #28a745;
-    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+.flash { 
+    padding: 10px; 
+    margin-bottom: 8px; 
+    border-radius: 6px; 
+    font-weight: 600; 
 }
 
-.flash.error {
-    background-color: #dc3545;
-    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+.flash.error { 
+    background-color: #f8d7da; 
+    color: #721c24; 
 }
 
-.flash.info {
-    background-color: #ffc107;
-    color: #333;
-    box-shadow: 0 4px 10px rgba(255, 193, 7, 0.4);
+.flash.success { 
+    background-color: #d4edda; 
+    color: #155724; 
 }
 
-body.dark .flash {
-    color: #f0f0f0;
-    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+.flash.warning {
+    background-color: #fff3cd; 
+    color: #856404; 
+} 
+
+body.dark .flash.error { 
+    background-color: #5a1e24; 
+    color: #ffd6d9; 
+} 
+
+body.dark .flash.success { 
+    background-color: #1f4d2b; 
+    color: #b6f2c2; 
+    
+} body.dark .flash.warning { 
+    background-color: #665c1e; color: #fff1b8; 
 }
 
-body.dark .flash.success {
-    background-color: #2ecc71;
-    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
-}
-
-body.dark .flash.error {
-    background-color: #c82333;
-    box-shadow: 0 4px 10px rgba(200, 35, 51, 0.4);
-}
-
-body.dark .flash.info {
-    background-color: #f39c12;
-    color: #212121;
-    box-shadow: 0 4px 10px rgba(243, 156, 18, 0.4);
-}
 
 
 
