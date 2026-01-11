@@ -383,6 +383,9 @@ def editar_servicios(id_reserva):
 
     servicios = Servicio.query.all()
 
+    if 'consumos_temporales' not in session:
+        session['consumos_temporales'] = []
+
     if request.method == 'POST':
         accion = request.form.get('accion')
 
@@ -398,16 +401,14 @@ def editar_servicios(id_reserva):
             if not id_servicio_nuevo or not cantidad_nuevo or int(cantidad_nuevo) <= 0:
                 flash("Selecciona un servicio válido y cantidad mayor a 0", "warning")
             else:
-                if 'consumos_temporales' not in session:
-                    session['consumos_temporales'] = []
-
                 servicio = Servicio.query.get(int(id_servicio_nuevo))
-                subtotal = float(servicio.precio) * int(cantidad_nuevo)
+                cantidad_nuevo = int(cantidad_nuevo)
+                subtotal = float(servicio.precio) * cantidad_nuevo
 
                 found = False
                 for temp in session['consumos_temporales']:
                     if temp['id_servicio'] == servicio.id_servicio:
-                        temp['cantidad'] += int(cantidad_nuevo)
+                        temp['cantidad'] += cantidad_nuevo
                         temp['subtotal'] += subtotal
                         found = True
                         break
@@ -416,7 +417,7 @@ def editar_servicios(id_reserva):
                     session['consumos_temporales'].append({
                         'id_servicio': servicio.id_servicio,
                         'nombre': servicio.nombre,
-                        'cantidad': int(cantidad_nuevo),
+                        'cantidad': cantidad_nuevo,
                         'subtotal': subtotal
                     })
 
@@ -455,39 +456,64 @@ def editar_servicios(id_reserva):
                     db.session.add(consumo)
 
             for temp in session.get('consumos_temporales', []):
+                temp_cantidad = int(temp['cantidad'])
+                temp_subtotal = float(temp['subtotal'])
                 consumo = ConsumoServicio.query.filter_by(
                     id_reserva=id_reserva,
                     id_servicio=temp['id_servicio']
                 ).first()
 
                 if consumo:
-                    consumo.cantidad += temp['cantidad']
-                    consumo.subtotal += temp['subtotal']
+                    consumo.cantidad += temp_cantidad
+                    consumo.subtotal += temp_subtotal
                 else:
                     consumo = ConsumoServicio(
                         id_reserva=id_reserva,
                         id_servicio=temp['id_servicio'],
-                        cantidad=temp['cantidad'],
-                        subtotal=temp['subtotal']
+                        cantidad=temp_cantidad,
+                        subtotal=temp_subtotal
                     )
                     db.session.add(consumo)
 
             db.session.commit()
-            flash("Cambios confirmados", "success")
             session.pop('consumos_temporales', None)
-
+            flash("Cambios confirmados", "success")
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
     consumos = list(reserva.consumos)
     consumos_temporales = session.get('consumos_temporales', [])
+
+    tabla_combinada = {}
+    for c in consumos:
+        tabla_combinada[c.id_servicio] = {
+            'id_servicio': c.id_servicio,
+            'nombre': c.servicio.nombre,
+            'cantidad': int(c.cantidad),
+            'subtotal': float(c.subtotal)
+        }
+
+    for t in consumos_temporales:
+        if t['id_servicio'] in tabla_combinada:
+            tabla_combinada[t['id_servicio']]['cantidad'] += int(t['cantidad'])
+            tabla_combinada[t['id_servicio']]['subtotal'] += float(t['subtotal'])
+        else:
+            tabla_combinada[t['id_servicio']] = {
+                'id_servicio': t['id_servicio'],
+                'nombre': t['nombre'],
+                'cantidad': int(t['cantidad']),
+                'subtotal': float(t['subtotal'])
+            }
+
+    consumos_para_tabla = list(tabla_combinada.values())
 
     return render_template(
         'editar_servicios.html',
         reserva=reserva,
         servicios=servicios,
         consumos_temporales=consumos_temporales,
-        consumos=consumos
+        consumos=consumos_para_tabla
     )
+
 
 # --------- GESTIONAR SERVICIOS ---------
 @app.route('/gestionar_servicios', methods=['GET', 'POST'])
@@ -590,6 +616,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
