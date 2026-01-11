@@ -329,6 +329,20 @@ def cerrar_reserva(id_reserva):
     flash("Reserva pagada correctamente", "success")
     return redirect('/dashboard_cliente')
 
+#--------- CANCELAR RESERVA ---------
+@app.route('/cancelar_reserva/<int:id_reserva>', methods=['POST'])
+def cancelar_reserva(id_reserva):
+    reserva = Reserva.query.get_or_404(id_reserva)
+
+    if reserva.estado == 'Activa':
+        reserva.estado = 'Finalizada'
+        reserva.habitacion.estado = 'Disponible'
+
+        db.session.commit()
+        flash('Reserva cancelada correctamente', "success")
+
+    return redirect(url_for('dashboard_cliente'))
+
 # --------- LOGOUT ----------
 @app.route('/logout')
 def logout():
