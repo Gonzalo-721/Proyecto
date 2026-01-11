@@ -35,13 +35,16 @@
 
                 <div class="form-group">
                     <label>Servicio</label>
-                    <select name="id_servicio" required>
-                        {% for s in servicios %}
-                        <option value="{{ s.id_servicio }}">
-                            {{ s.nombre }} - ${{ s.precio }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                        <select name="id_servicio">
+                            <option value="">— No deseo agregar servicios —</option>
+
+                            {% for s in servicios %}
+                            <option value="{{ s.id_servicio }}">
+                                {{ s.nombre }} - ${{ s.precio }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
                 </div>
 
                 <div class="form-group">
@@ -73,4 +76,5 @@
 </body>
 
 </html>
+
 
