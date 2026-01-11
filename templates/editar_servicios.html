@@ -1,5 +1,6 @@
 <h2>Editar servicios de la reserva</h2>
 
+<form method="POST">
 <table class="tabla">
     <thead>
         <tr>
@@ -13,23 +14,33 @@
     <tbody>
         {% for c in reserva.consumos %}
         <tr>
-            <td>{{ c.servicio.nombre }}</td>
-            <td>{{ c.cantidad }}</td>
-            <td>${{ c.subtotal }}</td>
             <td>
-                <form method="POST"
-                      action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}">
-                    <button class="btn btn-danger btn-sm">
-                        Eliminar
-                    </button>
+                <select name="id_servicio[]">
+                    <option value="">--Selecciona--</option>
+                    {% for s in servicios %}
+                    <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
+                        {{ s.nombre }} - ${{ s.precio }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </td>
+
+            <td>
+                <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1">
+            </td>
+
+            <td>${{ c.subtotal }}</td>
+
+            <td>
+                <form method="POST" action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}">
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
                 </form>
             </td>
         </tr>
         {% endfor %}
 
         <tr>
-            <form method="POST"
-                  action="{{ url_for('agregar_servicio', id_reserva=reserva.id_reserva) }}">
+            <form method="POST" action="{{ url_for('agregar_servicio', id_reserva=reserva.id_reserva) }}">
                 <td>
                     <select name="id_servicio" required>
                         <option value="">-- Selecciona --</option>
@@ -48,9 +59,7 @@
                 <td>—</td>
 
                 <td>
-                    <button class="btn btn-success btn-sm">
-                        Añadir
-                    </button>
+                    <button class="btn btn-success btn-sm">Añadir</button>
                 </td>
             </form>
         </tr>
@@ -58,8 +67,11 @@
 </table>
 
 <div class="acciones">
-    <a href="{{ url_for('detalles_reserva', id_reserva=reserva.id_reserva) }}"
-       class="btn">
+    <button type="submit" name="confirmar" value="1" class="btn btn-primary">
         Confirmar cambios
-    </a>
+    </button>
+    <button type="submit" name="cancelar" value="1" class="btn btn-secondary">
+        Cancelar cambios
+    </button>
 </div>
+</form>
