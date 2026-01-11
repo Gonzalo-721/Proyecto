@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <title>Editar servicios</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/editar_servicios.css') }}">
+    <style>
+        .marcado-eliminar {
+            text-decoration: line-through;
+            color: red;
+        }
+        .subtotal {
+            min-width: 80px;
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,16 +34,18 @@
                 {% for c in consumos %}
                 <tr data-id-consumo="{{ c.id_consumo }}" class="{% if c.marcado_eliminar %}marcado-eliminar{% endif %}">
                     <td>
-                        <select name="id_servicio[]">
+                        <select name="id_servicio[]" {% if c.marcado_eliminar %}disabled{% endif %}>
                             {% for s in servicios %}
-                            <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %} data-precio="{{ s.precio }}">
+                            <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}"
+                                {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
                                 {{ s.nombre }} - ${{ s.precio }}
                             </option>
                             {% endfor %}
                         </select>
                     </td>
                     <td>
-                        <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1" {% if c.marcado_eliminar %}disabled{% endif %}>
+                        <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1"
+                               {% if c.marcado_eliminar %}disabled{% endif %}>
                     </td>
                     <td class="subtotal">${{ c.subtotal }}</td>
                     <td>
@@ -51,7 +63,9 @@
                         <select id="nuevo-servicio">
                             <option value="">Selecciona servicio</option>
                             {% for s in servicios %}
-                            <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">{{ s.nombre }} - ${{ s.precio }}</option>
+                            <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">
+                                {{ s.nombre }} - ${{ s.precio }}
+                            </option>
                             {% endfor %}
                         </select>
                     </td>
@@ -77,21 +91,27 @@
         document.addEventListener('DOMContentLoaded', function () {
             const tabla = document.getElementById('tabla-consumos');
 
+            function actualizarSubtotal(fila) {
+                const cantidad = parseInt(fila.querySelector('input[name="cantidad[]"]')?.value) || parseInt(fila.querySelector('input[type="number"]')?.value) || 0;
+                const select = fila.querySelector('select');
+                if (!select) return;
+                const precio = parseFloat(select.selectedOptions[0].dataset.precio) || 0;
+                const subtotal = fila.querySelector('.subtotal');
+                subtotal.textContent = '$' + (cantidad * precio).toFixed(2);
+            }
+
             tabla.addEventListener('input', function (e) {
-                if (e.target.name.startsWith('cantidad')) {
+                if (e.target.name === 'cantidad[]') {
                     const fila = e.target.closest('tr');
-                    const cantidad = parseInt(e.target.value) || 0;
-                    const precio = parseFloat(fila.querySelector('select').selectedOptions[0].dataset.precio);
-                    fila.querySelector('.subtotal').textContent = '$' + (cantidad * precio).toFixed(2);
+                    actualizarSubtotal(fila);
                 }
             });
 
+            // Actualizar subtotal al cambiar servicio
             tabla.addEventListener('change', function (e) {
                 if (e.target.tagName === 'SELECT') {
                     const fila = e.target.closest('tr');
-                    const cantidad = parseInt(fila.querySelector('input').value) || 0;
-                    const precio = parseFloat(e.target.selectedOptions[0].dataset.precio);
-                    fila.querySelector('.subtotal').textContent = '$' + (cantidad * precio).toFixed(2);
+                    actualizarSubtotal(fila);
                 }
             });
 
