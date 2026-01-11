@@ -1,88 +1,134 @@
-<form method="POST">
+<!DOCTYPE html>
+<html lang="es">
 
-    <table class="tabla">
-        <thead>
-            <tr>
-                <th>Servicio</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
+<head>
+    <meta charset="UTF-8">
+    <title>Editar servicios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/editar_servicios.css') }}">
+</head>
 
-        <tbody>
-            {% for c in consumos %}
-            <tr {% if c.marcado_eliminar %}style="text-decoration: line-through; color:red;"{% endif %}>
-                <td>
-                    <select name="id_servicio[]">
-                        {% for s in servicios %}
-                        <option value="{{ s.id_servicio }}"
-                            {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
-                            {{ s.nombre }} - ${{ s.precio }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </td>
+<body>
+    <h2>Editar servicios de la reserva #{{ reserva.id_reserva }}</h2>
 
-                <td>
-                    <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1"
-                           {% if c.marcado_eliminar %}disabled{% endif %}>
-                </td>
+    <form method="POST">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-consumos">
+                {% for c in consumos %}
+                <tr data-id-consumo="{{ c.id_consumo }}" class="{% if c.marcado_eliminar %}marcado-eliminar{% endif %}">
+                    <td>
+                        <select name="id_servicio[]">
+                            {% for s in servicios %}
+                            <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %} data-precio="{{ s.precio }}">
+                                {{ s.nombre }} - ${{ s.precio }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1" {% if c.marcado_eliminar %}disabled{% endif %}>
+                    </td>
+                    <td class="subtotal">${{ c.subtotal }}</td>
+                    <td>
+                        {% if not c.marcado_eliminar %}
+                        <button type="button" class="btn btn-danger btn-sm btn-marcar-eliminar">Eliminar</button>
+                        {% else %}
+                        Marcado para eliminar
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
 
-                <td>${{ c.subtotal }}</td>
+                <tr id="fila-nuevo-servicio">
+                    <td>
+                        <select id="nuevo-servicio">
+                            <option value="">Selecciona servicio</option>
+                            {% for s in servicios %}
+                            <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">{{ s.nombre }} - ${{ s.precio }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" id="cantidad-nuevo" min="1"></td>
+                    <td class="subtotal">—</td>
+                    <td><button type="button" id="btn-agregar-temporal" class="btn btn-success btn-sm">Añadir</button></td>
+                </tr>
+            </tbody>
+        </table>
 
-                <td>
-                    {% if not c.marcado_eliminar %}
-                    <button type="submit"
-                            name="accion"
-                            value="eliminar_{{ c.id_consumo }}"
-                            class="btn btn-danger btn-sm"
-                            onclick="return confirm('¿Eliminar este servicio?');">
-                        Eliminar
-                    </button>
-                    {% else %}
-                    Marcado para eliminar
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
+        <div class="acciones" style="margin-top: 10px;">
+            <button type="submit" name="accion" value="confirmar" class="btn btn-primary">
+                Confirmar cambios
+            </button>
 
-            <tr>
-                <td>
-                    <select name="id_servicio_nuevo">
-                        <option value="">Selecciona nuevo servicio</option>
-                        {% for s in servicios %}
-                        <option value="{{ s.id_servicio }}">{{ s.nombre }} - ${{ s.precio }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
+            <button type="submit" name="accion" value="cancelar" class="btn btn-secondary">
+                Cancelar cambios
+            </button>
+        </div>
+    </form>
 
-                <td>
-                    <input type="number" name="cantidad_nuevo" min="1">
-                </td>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabla = document.getElementById('tabla-consumos');
 
-                <td>—</td>
+            tabla.addEventListener('input', function (e) {
+                if (e.target.name.startsWith('cantidad')) {
+                    const fila = e.target.closest('tr');
+                    const cantidad = parseInt(e.target.value) || 0;
+                    const precio = parseFloat(fila.querySelector('select').selectedOptions[0].dataset.precio);
+                    fila.querySelector('.subtotal').textContent = '$' + (cantidad * precio).toFixed(2);
+                }
+            });
 
-                <td>
-                    <button type="submit"
-                            name="accion"
-                            value="añadir"
-                            class="btn btn-success btn-sm">
-                        Añadir
-                    </button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            tabla.addEventListener('change', function (e) {
+                if (e.target.tagName === 'SELECT') {
+                    const fila = e.target.closest('tr');
+                    const cantidad = parseInt(fila.querySelector('input').value) || 0;
+                    const precio = parseFloat(e.target.selectedOptions[0].dataset.precio);
+                    fila.querySelector('.subtotal').textContent = '$' + (cantidad * precio).toFixed(2);
+                }
+            });
 
-    <div class="acciones" style="margin-top: 10px;">
-        <button type="submit" name="accion" value="confirmar" class="btn btn-primary">
-            Confirmar cambios
-        </button>
+            tabla.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-marcar-eliminar')) {
+                    const fila = e.target.closest('tr');
+                    fila.classList.add('marcado-eliminar');
+                    fila.querySelectorAll('input, select, button').forEach(el => el.disabled = true);
+                    fila.dataset.marcarEliminar = 'true';
+                }
+            });
 
-        <button type="submit" name="accion" value="cancelar" class="btn btn-secondary">
-            Cancelar cambios
-        </button>
-    </div>
+            document.getElementById('btn-agregar-temporal').addEventListener('click', function () {
+                const select = document.getElementById('nuevo-servicio');
+                const cantidadInput = document.getElementById('cantidad-nuevo');
+                const cantidad = parseInt(cantidadInput.value);
 
-</form>
+                if (!select.value || cantidad <= 0) {
+                    return alert("Selecciona un servicio válido y cantidad mayor a 0");
+                }
+
+                const precio = parseFloat(select.selectedOptions[0].dataset.precio);
+                const nombre = select.selectedOptions[0].text.split(' - ')[0];
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${nombre}<input type="hidden" name="id_servicio_nuevo[]" value="${select.value}"></td>
+                    <td>${cantidad}<input type="hidden" name="cantidad_nuevo[]" value="${cantidad}"></td>
+                    <td class="subtotal">$${(cantidad * precio).toFixed(2)}</td>
+                    <td><button type="button" class="btn btn-danger btn-sm btn-marcar-eliminar">Eliminar</button></td>
+                `;
+                tabla.appendChild(fila);
+
+                select.value = '';
+                cantidadInput.value = '';
+            });
+        });
+    </script>
+</body>
+</html>
