@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
 </head>
 <body>
+
 <div class="container">
 
     <header class="header">
@@ -22,8 +23,9 @@
     </div>
     {% endif %}
     {% endwith %}
-    
+
     <form method="POST">
+
         <table class="tabla">
             <thead>
                 <tr>
@@ -40,7 +42,8 @@
                     <td>
                         <select name="id_servicio[]">
                             {% for s in servicios %}
-                            <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
+                            <option value="{{ s.id_servicio }}"
+                                {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
                                 {{ s.nombre }} - ${{ s.precio }}
                             </option>
                             {% endfor %}
@@ -51,11 +54,17 @@
                         <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1">
                     </td>
 
-                    <td>${{ c.subtotal }}</td>
+                    <td>
+                        ${{ c.subtotal }}
+                    </td>
 
                     <td>
-                        <form method="POST" action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        <form method="POST"
+                              action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}"
+                              onsubmit="return confirm('¿Eliminar este servicio?');">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Eliminar
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -66,33 +75,51 @@
                         <select name="id_servicio_nuevo">
                             <option value="">Selecciona nuevo servicio</option>
                             {% for s in servicios %}
-                            <option value="{{ s.id_servicio }}">{{ s.nombre }} - ${{ s.precio }}</option>
+                            <option value="{{ s.id_servicio }}">
+                                {{ s.nombre }} - ${{ s.precio }}
+                            </option>
                             {% endfor %}
                         </select>
                     </td>
+
                     <td>
                         <input type="number" name="cantidad_nuevo" min="1">
                     </td>
+
                     <td>—</td>
+
                     <td>
-                        <button type="submit" name="accion" value="añadir" class="btn btn-success btn-sm">
+                        <button type="submit"
+                                name="accion"
+                                value="añadir"
+                                class="btn btn-success btn-sm">
                             Añadir
                         </button>
                     </td>
                 </tr>
+
             </tbody>
         </table>
 
         <div class="acciones">
-            <button type="submit" name="accion" value="confirmar" class="btn btn-primary">
+            <button type="submit"
+                    name="accion"
+                    value="confirmar"
+                    class="btn btn-primary">
                 Confirmar cambios
             </button>
-            <button type="submit" name="accion" value="cancelar" class="btn btn-secondary">
+
+            <button type="submit"
+                    name="accion"
+                    value="cancelar"
+                    class="btn btn-secondary">
                 Cancelar cambios
             </button>
         </div>
+
     </form>
 
 </div>
+
 </body>
 </html>
