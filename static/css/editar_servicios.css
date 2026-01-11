@@ -40,13 +40,14 @@ body {
 .container {
     width: 100%;
     overflow-x: auto;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    min-width: 950px;
     margin-bottom: 20px;
 }
 
