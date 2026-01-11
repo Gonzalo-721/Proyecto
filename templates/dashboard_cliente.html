@@ -31,15 +31,15 @@
         </nav>
 
         {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="flash-messages">
-              {% for message in messages %}
-                <div class="flash success">
-                  {{ message }}
-                </div>
-              {% endfor %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <div class="flash success">
+                {{ message }}
             </div>
-          {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
         <main>
@@ -78,11 +78,11 @@
                                 Pagar
                             </a>
 
-                            <button type="button" class="btn btn-danger"
-                                onclick="mostrarModal('{{ reserva.id_reserva }}')">
-
+                            <a href="{{ url_for('cancelar_reserva', id_reserva=reserva.id_reserva) }}"
+                                class="btn btn-danger">
                                 Cancelar
-                            </button>
+                            </a>
+
                             {% endif %}
                         </td>
 
@@ -95,18 +95,7 @@
             {% endif %}
         </main>
     </div>
-
-    <div id="modalCancelar" class="modal-custom">
-        <div class="modal-contenido">
-            <p>¿Desea cancelar esta reserva?</p>
-
-            <form id="formCancelar" method="POST">
-                <button type="submit" class="btn btn-danger">Sí, cancelar</button>
-                <button type="button" class="btn btn-secondary" onclick="cerrarModal()">No</button>
-            </form>
-        </div>
-    </div>
-
+    
     <script>
         const toggle = document.getElementById('toggle-dark');
         const body = document.body;
@@ -121,19 +110,6 @@
         });
     </script>
 
-    <script>
-        function mostrarModal(idReserva) {
-            const form = document.getElementById('formCancelar');
-            form.action = `/cancelar_reserva/${idReserva}`;
-            document.getElementById('modalCancelar').style.display = 'flex';
-        }
-
-        function cerrarModal() {
-            document.getElementById('modalCancelar').style.display = 'none';
-        }
-    </script>
-
 </body>
 
 </html>
-
