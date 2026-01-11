@@ -50,20 +50,24 @@
                         <td>{{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})</td>
                         <td>{{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}</td>
                         <td>{{ reserva.fecha_fin.strftime('%Y-%m-%d') }}</td>
-                        <td class="estado{% if reserva.estado == 'Activa' %} activa{% elif reserva.estado == 'Finalizada' %} finalizada{% endif %}">
+                        <td
+                            class="estado{% if reserva.estado == 'Activa' %} activa{% elif reserva.estado == 'Finalizada' %} finalizada{% endif %}">
                             {{ reserva.estado }}
                         </td>
 
                         <td class="acciones">
-                            <a href="{{ url_for('ver_detalles', id_reserva=reserva.id_reserva) }}" class="btn">Ver detalles</a>
+                            <a href="{{ url_for('detalles_reserva', id_reserva=reserva.id_reserva) }}" class="btn">
+                                Ver detalles
+                            </a>
 
                             {% if reserva.estado == 'Activa' %}
-                            <form method="POST" action="{{ url_for('cerrar_reserva', id_reserva=reserva.id_reserva) }}"
-                                  style="display:inline">
-                                <button class="btn btn-secondary" type="submit">Pagar</button>
-                            </form>
+                            <a href="{{ url_for('pago_reserva', id_reserva=reserva.id_reserva) }}"
+                                class="btn btn-secondary">
+                                Pagar
+                            </a>
                             {% endif %}
                         </td>
+
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -91,4 +95,3 @@
 </body>
 
 </html>
-
