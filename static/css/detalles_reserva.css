@@ -124,6 +124,7 @@ main section ul {
 .btn-secondary {
     background-color: #28a745;
     margin-left: 8px;
+    margin-top: 10px;
 }
 
 .btn-secondary:hover {
@@ -207,3 +208,4 @@ hr {
     transform: translateY(-2px);
 
 }
+
