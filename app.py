@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, redirect, url_for, request, flash
 from sqlalchemy.orm import joinedload
 from models import db, Usuario, Cliente, Empleado, Habitacion, Reserva, Servicio, ConsumoServicio, Pago
 from datetime import datetime
@@ -354,3 +354,4 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
