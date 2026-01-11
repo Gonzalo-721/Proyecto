@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Editar servicios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/servicios.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Editar servicios</h1>
+            <img src="{{ url_for('static', filename='img/logo.png') }}" class="header-logo">
+        </header>
+
+        <main>
+            <h2>Servicios de la reserva</h2>
+            <br>
+            <h3>Editar servicios actuales</h3>
+            <form method="POST">
+
+                {% for consumo in reserva.consumos %}
+                <div class="form-group">
+                    <select name="id_servicio[]">
+                        {% for s in servicios %}
+                        <option value="{{ s.id_servicio }}" {% if s.id_servicio==consumo.id_servicio %}selected{% endif
+                            %}>
+                            {{ s.nombre }} (${{ s.precio }})
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="number" name="cantidad[]" min="1" value="{{ consumo.cantidad }}" required>
+                </div>
+                {% endfor %}
+
+                <!-- fila extra para agregar nuevo -->
+                <h3>Añadir nuevo servicio</h3>
+
+                <div class="form-group">
+                    <select name="id_servicio[]">
+                        <option value="">-- Agregar nuevo servicio --</option>
+                        {% for s in servicios %}
+                        <option value="{{ s.id_servicio }}">
+                            {{ s.nombre }} (${{ s.precio }})
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="number" name="cantidad[]" min="1">
+                </div>
+                <br>
+                <div class="acciones">
+                    <button type="submit" class="btn">
+                        Guardar cambios
+                    </button>
+
+                    <a href="{{ url_for('detalles_reserva', id_reserva=reserva.id_reserva) }}"
+                        class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </main>
+
+    </div>
+
+</body>
+
+</html>
