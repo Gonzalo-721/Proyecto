@@ -15,57 +15,47 @@
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
         </header>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <main>
             <h2>Información general</h2>
 
-            <p><strong>Habitación:</strong>
-                {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})
-            </p>
-
-            <p><strong>Fechas:</strong>
-                {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}
-                →
-                {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}
-            </p>
-
-            <p><strong>Estado:</strong>
-                {{ reserva.estado }}
-            </p>
-
-            <p><strong>Precio por noche:</strong>
-                ${{ reserva.habitacion.precio_noche }}
-            </p>
+            <p><strong>Habitación:</strong> {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})</p>
+            <p><strong>Fechas:</strong> {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }} → {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}</p>
+            <p><strong>Estado:</strong> {{ reserva.estado }}</p>
+            <p><strong>Precio por noche:</strong> ${{ reserva.habitacion.precio_noche }}</p>
             <br>
 
             <h2>Servicios consumidos</h2>
-
             <ul>
                 {% for c in reserva.consumos %}
-                <li>
-                    {{ c.servicio.nombre }}
-                    (x{{ c.cantidad }})
-                    — ${{ c.subtotal }}
-                </li>
+                <li>{{ c.servicio.nombre }} (x{{ c.cantidad }}) — ${{ c.subtotal }}</li>
                 {% else %}
                 <li>No se añadió ningún servicio</li>
                 {% endfor %}
             </ul>
+
             <a href="{{ url_for('editar_servicios', id_reserva=reserva.id_reserva) }}" class="btn btn-secondary">
                 Editar servicios
             </a>
 
-            <br>
+            <br><br>
 
             <h2>Total acumulado</h2>
-            <p class="total">
-                <strong>${{ total }}</strong>
-            </p>
+            <p class="total"><strong>${{ total }}</strong></p>
 
             <div class="acciones">
-                <a href="{{ url_for('dashboard_cliente') }}" class="btn">
-                    Volver al dashboard
-                </a>
-
+                <a href="{{ url_for('dashboard_cliente') }}" class="btn">Volver al dashboard</a>
                 {% if reserva.estado == 'Activa' %}
                 <a href="{{ url_for('pago_reserva', id_reserva=reserva.id_reserva) }}" class="btn btn-secondary">
                     Ir a pagar
@@ -77,6 +67,4 @@
     </div>
 </body>
 
-
 </html>
-
