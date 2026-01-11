@@ -318,6 +318,35 @@ def servicios():
         servicios=servicios
     )
 
+# --------- AÑADIR SERVICIOS ---------
+@app.route('agregar_servicio', methods=['POST'])
+@login_required
+def agregar_servicio_reserva(id_reserva):
+    reserva = Reserva.query.get_or_404(id_reserva)
+
+    id_servicio = request.form.get('id_servicio')
+    cantidad = request.form.get('cantidad')
+
+    if not id_servicio or not cantidad:
+        flash("Selecciona servicio y cantidad", "warning")
+        return redirect(url_for('editar_servicios', id_reserva=id_reserva))
+
+    servicio = Servicio.query.get(id_servicio)
+    subtotal = servicio.precio * int(cantidad)
+
+    consumo = ConsumoServicio(
+        id_reserva=id_reserva,
+        id_servicio=id_servicio,
+        cantidad=cantidad,
+        subtotal=subtotal
+    )
+
+    db.session.add(consumo)
+    db.session.commit()
+
+    flash("Servicio agregado", "success")
+    return redirect(url_for('editar_servicios', id_reserva=id_reserva))
+
 # --------- EDITAR SERVICIOS ---------
 @app.route('/editar_servicios/<int:id_reserva>', methods=['GET', 'POST'])
 @login_required
@@ -473,6 +502,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
