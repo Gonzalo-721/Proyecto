@@ -1,76 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Editar consumos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/editar_servicios.css') }}">
 </head>
 
-<form method="POST">
-    <table class="tabla">
-        <thead> 
-            <tr> 
-                <th>Servicio</th> 
-                <th>Cantidad</th> 
-                <th>Subtotal</th> 
-                <th>Acción</th> 
-            </tr>
-        </thead> 
-        <tbody> 
-            {% for c in consumos %} 
-                <tr {% if c.marcado_eliminar %}style="text-decoration: line-through; color:red;"{% endif %}> 
-                    <td> 
-                        <select name="id_servicio[]"> 
-                            {% for s in servicios %} 
-                                <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %}> 
-                                    {{ s.nombre }} - ${{ s.precio }} 
-                                </option> 
-                            {% endfor %} 
-                        </select> 
-                    </td> 
-                    <td> 
-                        <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1" {% if c.marcado_eliminar %}disabled{% endif %}> 
-                    </td> 
-                    <td>${{ c.subtotal }}</td> 
-                    <td> 
-                        {% if not c.marcado_eliminar %} 
-                            <button type="submit" name="accion" value="eliminar_{{ c.id_consumo }}" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar este servicio?');"> 
-                                Eliminar 
-                            </button> 
-                        {% else %} 
-                            Marcado para eliminar 
-                        {% endif %} 
-                    </td> 
-                </tr> 
-            {% endfor %} 
-            <tr> 
-                <td> 
-                    <select name="id_servicio_nuevo"> 
-                        <option value="">Selecciona nuevo servicio</option> 
-                        {% for s in servicios %} 
-                            <option value="{{ s.id_servicio }}">{{ s.nombre }} - ${{ s.precio }}</option> 
-                        {% endfor %} 
-                    </select> 
-                </td> 
-                <td> 
-                    <input type="number" name="cantidad_nuevo" min="1"> 
-                </td> 
-                <td>—</td> 
-                <td> 
-                    <button type="submit" name="accion" value="añadir" class="btn btn-success btn-sm"> 
-                        Añadir 
-                    </button> 
-                </td> 
-            </tr> 
-        </tbody> 
-    </table> 
-    <div class="acciones" style="margin-top: 10px;"> 
-        <button type="submit" name="accion" value="confirmar" class="btn btn-primary"> 
-            Confirmar cambios 
-        </button> 
-        <button type="submit" name="accion" value="cancelar" class="btn btn-secondary"> 
-            Cancelar cambios 
-        </button> 
-    </div> 
-</form>
+<body>
+    <div class="container">
 
+        <header class="header">
+            <h1>Editar servicios</h1>
+
+            <button id="toggle-dark" type="button">
+                🌙 Modo oscuro
+            </button>
+        </header>
+
+        <form method="POST">
+
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for c in consumos %}
+                    <tr {% if c.marcado_eliminar %}style="text-decoration: line-through;"{% endif %}>
+                        <td>
+                            <select name="id_servicio[]">
+                                {% for s in servicios %}
+                                <option value="{{ s.id_servicio }}"
+                                    {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
+                                    {{ s.nombre }} - ${{ s.precio }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1"
+                                {% if c.marcado_eliminar %}disabled{% endif %}>
+                        </td>
+
+                        <td>${{ c.subtotal }}</td>
+
+                        <td>
+                            {% if not c.marcado_eliminar %}
+                            <button type="submit"
+                                name="accion"
+                                value="eliminar_{{ c.id_consumo }}"
+                                class="btn btn-danger"
+                                onclick="return confirm('¿Eliminar este servicio?');">
+                                Eliminar
+                            </button>
+                            {% else %}
+                            <span style="color: var(--danger); font-weight: 600;">
+                                Marcado para eliminar
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td>
+                            <select name="id_servicio_nuevo">
+                                <option value="">Selecciona nuevo servicio</option>
+                                {% for s in servicios %}
+                                <option value="{{ s.id_servicio }}">
+                                    {{ s.nombre }} - ${{ s.precio }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="number" name="cantidad_nuevo" min="1">
+                        </td>
+
+                        <td>—</td>
+
+                        <td>
+                            <button type="submit" name="accion" value="añadir" class="btn btn-success">
+                                Añadir
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="acciones">
+                <button type="submit" name="accion" value="confirmar" class="btn btn-primary">
+                    Confirmar cambios
+                </button>
+
+                <button type="submit" name="accion" value="cancelar" class="btn btn-secondary">
+                    Cancelar cambios
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem(
+                'dark-mode',
+                body.classList.contains('dark')
+            );
+        });
+    </script>
+
+</body>
+</html>
