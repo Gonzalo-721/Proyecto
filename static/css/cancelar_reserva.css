@@ -1,0 +1,140 @@
+:root {
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --text-main: #333;
+    --primary: #007bff;
+    --primary-dark: #0056b3;
+    --success: #28a745;
+    --danger: #dc3545;
+}
+
+body.dark {
+    --bg-body: #121212;
+    --bg-card: #1e1e1e;
+    --text-main: #e0e0e0;
+    --primary: #4da3ff;
+    --primary-dark: #1e6fd9;
+    --success: #218838;
+    --danger: #c82333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    padding: 30px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#toggle-dark {
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#toggle-dark:hover {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+    transform: translateY(-2px);
+}
+
+main section {
+    background-color: var(--bg-card);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+h2 {
+    margin-bottom: 10px;
+    color: var(--primary-dark);
+}
+
+ul {
+    padding-left: 20px;
+}
+
+.total {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+.warning-box {
+    border-left: 6px solid var(--danger);
+}
+
+.warning {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.btn,
+.btn-secondary,
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.4);
+}
+
+.acciones {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
