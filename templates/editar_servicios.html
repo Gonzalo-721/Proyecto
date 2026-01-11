@@ -11,8 +11,8 @@
         </thead>
 
         <tbody>
-            {% for c in reserva.consumos %}
-            <tr>
+            {% for c in consumos %}
+            <tr {% if c.marcado_eliminar %}style="text-decoration: line-through; color:red;"{% endif %}>
                 <td>
                     <select name="id_servicio[]">
                         {% for s in servicios %}
@@ -25,12 +25,14 @@
                 </td>
 
                 <td>
-                    <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1">
+                    <input type="number" name="cantidad[]" value="{{ c.cantidad }}" min="1"
+                           {% if c.marcado_eliminar %}disabled{% endif %}>
                 </td>
 
                 <td>${{ c.subtotal }}</td>
 
                 <td>
+                    {% if not c.marcado_eliminar %}
                     <button type="submit"
                             name="accion"
                             value="eliminar_{{ c.id_consumo }}"
@@ -38,6 +40,9 @@
                             onclick="return confirm('¿Eliminar este servicio?');">
                         Eliminar
                     </button>
+                    {% else %}
+                    Marcado para eliminar
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -70,7 +75,7 @@
         </tbody>
     </table>
 
-    <div class="acciones">
+    <div class="acciones" style="margin-top: 10px;">
         <button type="submit" name="accion" value="confirmar" class="btn btn-primary">
             Confirmar cambios
         </button>
