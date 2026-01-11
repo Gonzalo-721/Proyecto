@@ -259,14 +259,18 @@ def ver_reservas():
 @login_required
 def servicios():
     usuario = Usuario.query.get(session['usuario_id'])
+
     if not hasattr(usuario, 'cliente') or not usuario.cliente:
         flash("Solo clientes pueden agregar servicios", "error")
         return redirect('/login')
 
-    servicios = Servicio.query.all()
     cliente = usuario.cliente
+    servicios = Servicio.query.all()
 
-    reserva = Reserva.query.filter_by(id_cliente=cliente.id_usuario, estado='Activa').order_by(Reserva.id_reserva.desc()).first()
+    reserva = Reserva.query.filter_by(
+        id_cliente=cliente.id_usuario,
+        estado='Activa'
+    ).order_by(Reserva.id_reserva.desc()).first()
 
     if not reserva:
         flash("No tienes una reserva activa", "warning")
@@ -275,24 +279,44 @@ def servicios():
     if request.method == 'POST':
         id_servicio = request.form.get('id_servicio')
 
-        if not id_servicio:
+        if not id_servicio or id_servicio == "0":
             flash("No se agregó ningún servicio", "info")
             return redirect('/dashboard_cliente')
 
+        cantidad = request.form.get('cantidad')
+
+        if not cantidad or int(cantidad) <= 0:
+            flash("Cantidad inválida", "error")
+            return redirect('/servicios')
+
         id_servicio = int(id_servicio)
-        cantidad = int(request.form['cantidad'])
+        cantidad = int(cantidad)
 
         servicio = Servicio.query.get(id_servicio)
+
+        if not servicio:
+            flash("Servicio no válido", "error")
+            return redirect('/servicios')
+
         subtotal = servicio.precio * cantidad
 
-        consumo = ConsumoServicio(id_reserva=reserva.id_reserva, id_servicio=id_servicio, cantidad=cantidad, subtotal=subtotal)
+        consumo = ConsumoServicio(
+            id_reserva=reserva.id_reserva,
+            id_servicio=id_servicio,
+            cantidad=cantidad,
+            subtotal=subtotal
+        )
+
         db.session.add(consumo)
         db.session.commit()
 
         flash("Servicio agregado correctamente", "success")
         return redirect('/dashboard_cliente')
 
-    return render_template('servicios.html', servicios=servicios)
+    return render_template(
+        'servicios.html',
+        servicios=servicios
+    )
 
 # --------- EDITAR SERVICIOS ---------
 @app.route('/editar_servicios/<int:id_reserva>', methods=['GET', 'POST'])
@@ -449,5 +473,6 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
