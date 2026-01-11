@@ -143,7 +143,10 @@ tr:hover {
 }
 
 .estado.finalizada {
-    color: #95a5a6;
+    color: #f1c40f;
+}
+.estado.cancelada {
+    color: #e74c3c;
 }
 
 .empty {
@@ -153,3 +156,4 @@ tr:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     min-width: 950px;
 }
+
