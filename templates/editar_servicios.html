@@ -16,7 +16,7 @@
         <tr>
             <td>
                 <select name="id_servicio[]">
-                    <option value="">--Selecciona--</option>
+                    <option value="">Selecciona nuevo servicio</option>
                     {% for s in servicios %}
                     <option value="{{ s.id_servicio }}" {% if c.id_servicio == s.id_servicio %}selected{% endif %}>
                         {{ s.nombre }} - ${{ s.precio }}
@@ -43,7 +43,7 @@
             <form method="POST" action="{{ url_for('agregar_servicio', id_reserva=reserva.id_reserva) }}">
                 <td>
                     <select name="id_servicio" required>
-                        <option value="">-- Selecciona --</option>
+                        <option value="">Selecciona nuevo servicio</option>
                         {% for s in servicios %}
                         <option value="{{ s.id_servicio }}">
                             {{ s.nombre }} - ${{ s.precio }}
@@ -75,3 +75,4 @@
     </button>
 </div>
 </form>
+
