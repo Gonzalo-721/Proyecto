@@ -294,6 +294,60 @@ def servicios():
 
     return render_template('servicios.html', servicios=servicios)
 
+# --------- EDITAR SERVICIOS ---------
+@app.route('/editar_servicios/<int:id_reserva>', methods=['GET', 'POST'])
+@login_required
+def editar_servicios(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+
+    if not usuario or not usuario.cliente:
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    reserva = Reserva.query.options(
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).get_or_404(id_reserva)
+
+    if reserva.id_cliente != usuario.cliente.id_usuario:
+        flash("No puedes editar esta reserva", "error")
+        return redirect('/dashboard_cliente')
+
+    servicios = Servicio.query.all()
+
+    if request.method == 'POST':
+        # borrar consumos anteriores
+        ConsumoServicio.query.filter_by(
+            id_reserva=reserva.id_reserva
+        ).delete()
+
+        ids = request.form.getlist('id_servicio[]')
+        cantidades = request.form.getlist('cantidad[]')
+
+        for id_servicio, cantidad in zip(ids, cantidades):
+            if not id_servicio:
+                continue
+
+            servicio = Servicio.query.get(int(id_servicio))
+            subtotal = servicio.precio * int(cantidad)
+
+            consumo = ConsumoServicio(
+                id_reserva=reserva.id_reserva,
+                id_servicio=servicio.id_servicio,
+                cantidad=int(cantidad),
+                subtotal=subtotal
+            )
+            db.session.add(consumo)
+
+        db.session.commit()
+        flash("Servicios actualizados correctamente", "success")
+        return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
+
+    return render_template(
+        'editar_servicios.html',
+        reserva=reserva,
+        servicios=servicios
+    )
+
 # --------- GESTIONAR SERVICIOS ---------
 @app.route('/gestionar_servicios', methods=['GET', 'POST'])
 @login_required
@@ -395,4 +449,5 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
