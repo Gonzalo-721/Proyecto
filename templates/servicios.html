@@ -50,7 +50,7 @@
 
                 <div class="form-group">
                     <label>Cantidad</label>
-                    <input type="number" name="cantidad" min="1" required>
+                    <input type="number" name="cantidad" min="1">
                 </div>
 
                 <button type="submit" class="btn">Agregar servicio</button>
@@ -72,11 +72,27 @@
             body.classList.toggle('dark');
             localStorage.setItem('dark-mode', body.classList.contains('dark'));
         });
+        
+    const select = document.querySelector('select[name="id_servicio"]');
+    const cantidad = document.querySelector('input[name="cantidad"]');
+
+    function toggleCantidad() {
+        if (!select.value || select.value === "0") {
+            cantidad.disabled = true;
+            cantidad.value = '';
+        } else {
+            cantidad.disabled = false;
+        }
+    }
+
+    select.addEventListener('change', toggleCantidad);
+    toggleCantidad();
     </script>
 
 </body>
 
 </html>
+
 
 
 
