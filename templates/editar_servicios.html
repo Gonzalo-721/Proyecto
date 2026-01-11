@@ -1,74 +1,65 @@
-<!DOCTYPE html>
-<html lang="es">
+<h2>Editar servicios de la reserva</h2>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Editar servicios</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/servicios.css') }}">
-</head>
+<table class="tabla">
+    <thead>
+        <tr>
+            <th>Servicio</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
 
-<body>
+    <tbody>
+        {% for c in reserva.consumos %}
+        <tr>
+            <td>{{ c.servicio.nombre }}</td>
+            <td>{{ c.cantidad }}</td>
+            <td>${{ c.subtotal }}</td>
+            <td>
+                <form method="POST"
+                      action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}">
+                    <button class="btn btn-danger btn-sm">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
 
-    <div class="container">
-
-        <header class="header">
-            <h1>Editar servicios</h1>
-            <img src="{{ url_for('static', filename='img/logo.png') }}" class="header-logo">
-        </header>
-
-        <main>
-            <h2>Servicios de la reserva</h2>
-            <br>
-            <h3>Editar servicios actuales</h3>
-            <form method="POST">
-
-                {% for consumo in reserva.consumos %}
-                <div class="form-group">
-                    <select name="id_servicio[]">
-                        {% for s in servicios %}
-                        <option value="{{ s.id_servicio }}" {% if s.id_servicio==consumo.id_servicio %}selected{% endif
-                            %}>
-                            {{ s.nombre }} (${{ s.precio }})
-                        </option>
-                        {% endfor %}
-                    </select>
-
-                    <input type="number" name="cantidad[]" min="1" value="{{ consumo.cantidad }}" required>
-                </div>
-                {% endfor %}
-
-                <!-- fila extra para agregar nuevo -->
-                <h3>Añadir nuevo servicio</h3>
-
-                <div class="form-group">
-                    <select name="id_servicio[]">
-                        <option value="">-- Agregar nuevo servicio --</option>
+        <tr>
+            <form method="POST"
+                  action="{{ url_for('agregar_servicio', id_reserva=reserva.id_reserva) }}">
+                <td>
+                    <select name="id_servicio" required>
+                        <option value="">-- Selecciona --</option>
                         {% for s in servicios %}
                         <option value="{{ s.id_servicio }}">
-                            {{ s.nombre }} (${{ s.precio }})
+                            {{ s.nombre }} - ${{ s.precio }}
                         </option>
                         {% endfor %}
                     </select>
+                </td>
 
-                    <input type="number" name="cantidad[]" min="1">
-                </div>
-                <br>
-                <div class="acciones">
-                    <button type="submit" class="btn">
-                        Guardar cambios
+                <td>
+                    <input type="number" name="cantidad" min="1">
+                </td>
+
+                <td>—</td>
+
+                <td>
+                    <button class="btn btn-success btn-sm">
+                        Añadir
                     </button>
-
-                    <a href="{{ url_for('detalles_reserva', id_reserva=reserva.id_reserva) }}"
-                        class="btn btn-secondary">
-                        Cancelar
-                    </a>
-                </div>
-
+                </td>
             </form>
-        </main>
+        </tr>
+    </tbody>
+</table>
 
-    </div>
-
-</body>
-
-</html>
+<div class="acciones">
+    <a href="{{ url_for('detalles_reserva', id_reserva=reserva.id_reserva) }}"
+       class="btn">
+        Confirmar cambios
+    </a>
+</div>
