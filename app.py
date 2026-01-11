@@ -189,9 +189,9 @@ def reservar():
     return render_template('reservar.html', habitaciones=habitaciones)
 
 #--------- VER DETALLES DE LAS RESERVAS (PARA CLIENTES) ---------
-@app.route('/ver_detalles/<int:id_reserva>')
+@app.route('/detalles_reserva/<int:id_reserva>')
 @login_required
-def ver_detalles(id_reserva):
+def detalles_reserva(id_reserva):
     usuario = Usuario.query.get(session['usuario_id'])
     if not usuario or not usuario.cliente:
         flash("Acceso no autorizado")
@@ -217,9 +217,9 @@ def ver_detalles(id_reserva):
     )
 
 #--------- PAGAR LA RESERVA ---------
-@app.route('/pago/<int:id_reserva>')
+@app.route('/pago_reserva/<int:id_reserva>')
 @login_required
-def pago(id_reserva):
+def pago_reserva(id_reserva):
     usuario = Usuario.query.get(session['usuario_id'])
     if not usuario or not usuario.cliente:
         flash("Acceso no autorizado")
