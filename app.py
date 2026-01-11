@@ -386,7 +386,7 @@ def editar_servicios(id_reserva):
 
     if request.method == 'POST':
         accion = request.form.get('accion')
-        
+
         if accion == "cancelar":
             nuevos_consumos = ConsumoServicio.query.filter(
                 ConsumoServicio.id_reserva == id_reserva,
@@ -399,12 +399,12 @@ def editar_servicios(id_reserva):
             flash("Cambios cancelados", "info")
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
-        if accion == "añadir":
+        elif accion == "añadir":
             id_servicio_nuevo = request.form.get('id_servicio_nuevo')
             cantidad_nuevo = request.form.get('cantidad_nuevo')
 
             if not id_servicio_nuevo or not cantidad_nuevo or int(cantidad_nuevo) <= 0:
-                flash("Selecciona un servicio válido y cantidad", "warning")
+                flash("Selecciona un servicio válido y cantidad mayor a 0", "warning")
             else:
                 servicio = Servicio.query.get(int(id_servicio_nuevo))
                 subtotal = servicio.precio * int(cantidad_nuevo)
@@ -421,8 +421,8 @@ def editar_servicios(id_reserva):
 
             return redirect(url_for('editar_servicios', id_reserva=id_reserva))
 
-        if accion == "confirmar":
-            ConsumoServicio.query.filter_by(id_reserva=reserva.id_reserva).delete()
+        elif accion == "confirmar":
+            ConsumoServicio.query.filter_by(id_reserva=id_reserva).delete()
 
             ids = request.form.getlist('id_servicio[]')
             cantidades = request.form.getlist('cantidad[]')
@@ -433,7 +433,7 @@ def editar_servicios(id_reserva):
                 servicio = Servicio.query.get(int(id_s))
                 subtotal = servicio.precio * int(cant)
                 consumo = ConsumoServicio(
-                    id_reserva=reserva.id_reserva,
+                    id_reserva=id_reserva,
                     id_servicio=servicio.id_servicio,
                     cantidad=int(cant),
                     subtotal=subtotal
@@ -444,11 +444,13 @@ def editar_servicios(id_reserva):
             flash("Cambios confirmados", "success")
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
+    # ------------------ GET ------------------
     return render_template(
         'editar_servicios.html',
         reserva=reserva,
         servicios=servicios
     )
+
 
 # --------- GESTIONAR SERVICIOS ---------
 @app.route('/gestionar_servicios', methods=['GET', 'POST'])
@@ -551,6 +553,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
