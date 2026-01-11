@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Cancelar reserva</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_cliente.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cancelar_reserva.css') }}">
 </head>
 
 <body>
@@ -12,74 +12,93 @@
 
         <header class="header">
             <h1>Cancelar reserva</h1>
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+
+            <button id="toggle-dark" type="button">
+                🌙 Modo oscuro
+            </button>
         </header>
 
         <main>
-            <h2>Información general</h2>
+            <section>
+                <h2>Información general</h2>
 
-            <p><strong>Habitación:</strong>
-                {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})
-            </p>
+                <p><strong>Habitación:</strong>
+                    {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})
+                </p>
 
-            <p><strong>Fechas:</strong>
-                {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}
-                →
-                {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}
-            </p>
+                <p><strong>Fechas:</strong>
+                    {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }}
+                    →
+                    {{ reserva.fecha_fin.strftime('%Y-%m-%d') }}
+                </p>
 
-            <p><strong>Estado:</strong>
-                {{ reserva.estado }}
-            </p>
+                <p><strong>Estado:</strong> {{ reserva.estado }}</p>
 
-            <p><strong>Precio por noche:</strong>
-                ${{ reserva.habitacion.precio_noche }}
-            </p>
-            <br>
+                <p><strong>Precio por noche:</strong>
+                    ${{ reserva.habitacion.precio_noche }}
+                </p>
+            </section>
 
-            <h2>Servicios consumidos</h2>
+            <section>
+                <h2>Servicios consumidos</h2>
 
-            <ul>
-                {% for c in reserva.consumos %}
-                <li>
-                    {{ c.servicio.nombre }}
-                    (x{{ c.cantidad }})
-                    — ${{ c.subtotal }}
-                </li>
-                {% else %}
-                <li>No se añadió ningún servicio</li>
-                {% endfor %}
-            </ul>
-            <br>
+                <ul>
+                    {% for c in reserva.consumos %}
+                    <li>
+                        {{ c.servicio.nombre }} (x{{ c.cantidad }})
+                        — ${{ c.subtotal }}
+                    </li>
+                    {% else %}
+                    <li>No se añadió ningún servicio</li>
+                    {% endfor %}
+                </ul>
+            </section>
 
-            <h2>Total acumulado</h2>
-            <p class="total">
-                <strong>${{ total }}</strong>
-            </p>
-            <br>
-            <h2>¿Desea cancelar esta reserva?</h2>
+            <section>
+                <h2>Total acumulado</h2>
+                <p class="total"><strong>${{ total }}</strong></p>
+            </section>
 
-            <p class="warning">
-                Esta acción finalizará la reserva y liberará la habitación.
-            </p>
+            <section class="warning-box">
+                <h2>¿Desea cancelar esta reserva?</h2>
 
-            <div class="acciones">
-                <form method="POST" action="{{ url_for('cancelar_reserva', id_reserva=reserva.id_reserva) }}"
-                    style="display:inline">
-                    <button type="submit" class="btn btn-danger">
-                        Sí, cancelar
-                    </button>
-                </form>
+                <p class="warning">
+                    Esta acción finalizará la reserva y liberará la habitación.
+                </p>
 
-                <a href="{{ url_for('dashboard_cliente') }}" class="btn btn-secondary">
-                    No, volver
-                </a>
-            </div>
+                <div class="acciones">
+                    <form method="POST"
+                        action="{{ url_for('cancelar_reserva', id_reserva=reserva.id_reserva) }}">
+                        <button type="submit" class="btn btn-danger">
+                            Sí, cancelar
+                        </button>
+                    </form>
 
+                    <a href="{{ url_for('dashboard_cliente') }}" class="btn btn-secondary">
+                        No, volver
+                    </a>
+                </div>
+            </section>
         </main>
 
     </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem(
+                'dark-mode',
+                body.classList.contains('dark')
+            );
+        });
+    </script>
+
 </body>
-
 </html>
-
