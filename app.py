@@ -382,10 +382,20 @@ def editar_servicios(id_reserva):
 
     servicios = Servicio.query.all()
 
+    original_ids = [c.id_consumo for c in reserva.consumos]
+
     if request.method == 'POST':
         accion = request.form.get('accion')
-
+        
         if accion == "cancelar":
+            nuevos_consumos = ConsumoServicio.query.filter(
+                ConsumoServicio.id_reserva == id_reserva,
+                ~ConsumoServicio.id_consumo.in_(original_ids)
+            ).all()
+            for c in nuevos_consumos:
+                db.session.delete(c)
+            db.session.commit()
+
             flash("Cambios cancelados", "info")
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
 
@@ -439,7 +449,6 @@ def editar_servicios(id_reserva):
         reserva=reserva,
         servicios=servicios
     )
-
 
 # --------- GESTIONAR SERVICIOS ---------
 @app.route('/gestionar_servicios', methods=['GET', 'POST'])
@@ -542,6 +551,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
