@@ -22,7 +22,7 @@
     </div>
     {% endif %}
     {% endwith %}
-
+    
     <form method="POST">
         <table class="tabla">
             <thead>
@@ -54,8 +54,9 @@
                     <td>${{ c.subtotal }}</td>
 
                     <td>
-                        <a href="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}" 
-                           class="btn btn-danger btn-sm">Eliminar</a>
+                        <form method="POST" action="{{ url_for('eliminar_servicio', id_consumo=c.id_consumo) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
