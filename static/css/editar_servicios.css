@@ -95,6 +95,13 @@ h1 span {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+.tabla td:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
 th {
     background: var(--th-bg);
     color: white;
@@ -166,9 +173,6 @@ select:focus {
     background-color: var(--primary);
 }
 
-.btn-primary {
-    margin-left: -10px;
-}
 .btn:hover {
     background-color: var(--primary-dark);
     transform: translateY(-2px);
