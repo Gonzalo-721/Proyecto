@@ -396,18 +396,21 @@ def editar_servicios(id_reserva):
             if not id_servicio_nuevo or not cantidad_nuevo or int(cantidad_nuevo) <= 0:
                 flash("Selecciona un servicio válido y cantidad mayor a 0", "warning")
             else:
+                if 'consumos_temporales' not in session:
+                    session['consumos_temporales'] = []
+
                 servicio = Servicio.query.get(int(id_servicio_nuevo))
                 subtotal = servicio.precio * int(cantidad_nuevo)
 
-                consumo = ConsumoServicio(
-                    id_reserva=id_reserva,
-                    id_servicio=servicio.id_servicio,
-                    cantidad=int(cantidad_nuevo),
-                    subtotal=subtotal
-                )
-                db.session.add(consumo)
-                db.session.commit()
-                flash(f"Servicio '{servicio.nombre}' agregado correctamente", "success")
+                session['consumos_temporales'].append({
+                    'id_servicio': servicio.id_servicio,
+                    'nombre': servicio.nombre,
+                    'cantidad': int(cantidad_nuevo),
+                    'subtotal': subtotal
+                })
+                session.modified = True
+
+                flash(f"Servicio '{servicio.nombre}' agregado temporalmente", "success")
 
             return redirect(url_for('editar_servicios', id_reserva=id_reserva))
 
@@ -431,16 +434,33 @@ def editar_servicios(id_reserva):
                 )
                 db.session.add(consumo)
 
+            for temp in session.get('consumos_temporales', []):
+                consumo = ConsumoServicio(
+                    id_reserva=id_reserva,
+                    id_servicio=temp['id_servicio'],
+                    cantidad=temp['cantidad'],
+                    subtotal=temp['subtotal']
+                )
+                db.session.add(consumo)
+
             db.session.commit()
             flash("Cambios confirmados", "success")
+
+            session.pop('consumos_temporales', None)
+
             return redirect(url_for('detalles_reserva', id_reserva=id_reserva))
+
+    consumos = list(reserva.consumos)
+
+    consumos_temporales = session.get('consumos_temporales', [])
 
     return render_template(
         'editar_servicios.html',
         reserva=reserva,
-        servicios=servicios
+        servicios=servicios,
+        consumos_temporales=consumos_temporales,
+        consumos=consumos
     )
-
 
 # --------- GESTIONAR SERVICIOS ---------
 @app.route('/gestionar_servicios', methods=['GET', 'POST'])
@@ -543,6 +563,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
