@@ -319,7 +319,7 @@ def servicios():
     )
 
 # --------- AÑADIR SERVICIOS ---------
-@app.route('agregar_servicio', methods=['POST'])
+@app.route('/agregar_servicio', methods=['POST'])
 @login_required
 def agregar_servicio_reserva(id_reserva):
     reserva = Reserva.query.get_or_404(id_reserva)
@@ -502,6 +502,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
