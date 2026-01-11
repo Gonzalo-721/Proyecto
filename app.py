@@ -273,7 +273,13 @@ def servicios():
         return redirect('/dashboard_cliente')
 
     if request.method == 'POST':
-        id_servicio = int(request.form['id_servicio'])
+        id_servicio = request.form.get('id_servicio')
+
+        if not id_servicio:
+            flash("No se agregó ningún servicio", "info")
+            return redirect('/dashboard_cliente')
+
+        id_servicio = int(id_servicio)
         cantidad = int(request.form['cantidad'])
 
         servicio = Servicio.query.get(id_servicio)
@@ -389,3 +395,4 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
