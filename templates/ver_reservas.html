@@ -56,8 +56,8 @@
                         </td>
                         <td>
                             {% if reserva.estado == 'Activa' %}
-                            <a class="btn" href="/cerrar_reserva/{{ reserva.id_reserva }}">
-                                Cancelar reserva
+                            <a class="btn" href="/ver_reservas_empleados/{{ reserva.id_reserva }}">
+                                Ver detalles
                             </a>
                             {% endif %}
                         </td>
@@ -93,3 +93,4 @@
 </body>
 
 </html>
+
