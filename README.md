@@ -24,6 +24,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 - Base de datos y Modelos
 - Seguridad y buenas prácticas
 - Logs y monitoreo
+- Demo de la página
 
 ---
 ## Modelo relacional
@@ -177,6 +178,12 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
+## Demo de la página
+* **Demo en Vivo:** [Probar página](https://gonzalo-721.github.io/Pagina-demo/)
+
+---
+
 
 
 
