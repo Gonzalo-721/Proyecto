@@ -133,11 +133,11 @@ PROYECTO/
 
   <tr>
     <td width="50%"><img src="images/dashboard_cliente.png" alt="Interfaz usuario 1" width="100%"></td>
-    <td width="50%"><img src="images/cancelar_reserva.png" alt="Interfaz usuario 2" width="100%"></td>
+    <td width="50%"><img src="images/detalles_reserva.png" alt="Interfaz usuario 2" width="100%"></td>
   </tr>
   <tr>
     <td width="50%"><img src="images/dashboard_empleado.png" alt="Interfaz usuario 3" width="100%"></td>
-    <td width="50%"><img src="images/ver_reservas.png" alt="Interfaz usuario 4" width="100%"></td>
+    <td width="50%"><img src="images/ver_habitaciones.png" alt="Interfaz usuario 4" width="100%"></td>
   </tr>
 </table>
 
@@ -173,4 +173,5 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
 
