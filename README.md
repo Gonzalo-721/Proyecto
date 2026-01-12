@@ -20,6 +20,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 - Lenguajes y tecnologías
 - Despliegue
 - Estructura del proyecto
+- Interfaz de usuario (UI)
 - Base de datos y Modelos
 - Seguridad y buenas prácticas
 - Logs y monitoreo
@@ -128,6 +129,9 @@ PROYECTO/
    ├─ ver_reservas.html
    └─ ver_reservas_empleados.html
 ```
+---
+
+## Interfaz de usuario (UI)
 
 <table width="100%" cellspacing="10" cellpadding="0" style="border-collapse: separate;">
 
@@ -173,6 +177,7 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
 
 
 
