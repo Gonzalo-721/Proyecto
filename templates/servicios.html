@@ -39,7 +39,7 @@
                         <option value="0">No quiero agregar servicios</option>
 
                         {% for s in servicios %}
-                            <option value="{{ s.id_servicio }}">
+                            <option value="{{ s.id_servicio }}" data-precio="{{ s.precio }}">
                                 {{ s.nombre }} - ${{ s.precio }}
                             </option>
                         {% endfor %}
@@ -65,7 +65,7 @@
                     </tr>
                 </thead>
                 <tbody>
-
+                    
                 </tbody>
             </table>
 
@@ -108,6 +108,7 @@
 
         function updateTable() {
             serviciosTable.innerHTML = '';
+
             selectedServices.forEach((service, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -118,6 +119,7 @@
                 `;
                 serviciosTable.appendChild(row);
             });
+
             confirmBtn.disabled = selectedServices.length === 0;
         }
 
@@ -149,7 +151,6 @@
         addServiceBtn.addEventListener('click', addService);
         select.addEventListener('change', toggleCantidad);
         toggleCantidad();
-
     </script>
 
 </body>
