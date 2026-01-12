@@ -139,3 +139,7 @@ body {
 .btn:hover {
     background-color: var(--primary-dark);
 }
+
+.danger {
+    color: red;
+}
