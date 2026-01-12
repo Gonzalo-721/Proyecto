@@ -26,7 +26,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 
 ---
 ## Modelo relacional
-<img alt="Descripción de la imagen" src="images/modelo_relacional.png" />
+<img alt="Modelo relacional" src="images/modelo_relacional.png" />
 
 ## Arquitectura
 
@@ -173,3 +173,4 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
