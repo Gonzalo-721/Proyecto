@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles de la reserva</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detalles_reserva.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="header">
+            <h1>Detalles de la reserva</h1>
+
+            <button id="toggle-dark" class="nav-toggle" type="button">🌙 Modo oscuro</button>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <main>
+            <h2>Información general</h2>
+            <p><strong>Habitación:</strong> {{ reserva.habitacion.numero }} ({{ reserva.habitacion.tipo }})</p>
+            <p><strong>Fechas:</strong> {{ reserva.fecha_inicio.strftime('%Y-%m-%d') }} → {{
+                reserva.fecha_fin.strftime('%Y-%m-%d') }}</p>
+            <p><strong>Estado:</strong> {{ reserva.estado }}</p>
+            <p><strong>Precio por noche:</strong> ${{ reserva.habitacion.precio_noche }}</p>
+            <br>
+
+            <h2>Servicios consumidos</h2>
+            <ul>
+                {% for c in reserva.consumos %}
+                <li>{{ c.servicio.nombre }} (x{{ c.cantidad }}) — ${{ c.subtotal }}</li>
+                {% else %}
+                <li>No se añadió ningún servicio</li>
+                {% endfor %}
+            </ul>
+
+            <br><br>
+
+            <h2>Total acumulado</h2>
+            <p class="total"><strong>${{ total }}</strong></p>
+
+            <div class="acciones">
+                <a href="{{ url_for('dashboard_empleado') }}" class="btn">Volver al dashboard</a>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        const toggle = document.getElementById('toggle-dark');
+        const body = document.body;
+
+        if (localStorage.getItem('dark-mode') === 'true') {
+            body.classList.add('dark');
+        }
+
+        toggle.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            localStorage.setItem('dark-mode', body.classList.contains('dark'));
+        });
+    </script>
+
+</body>
+
+</html>
