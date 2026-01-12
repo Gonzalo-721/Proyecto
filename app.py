@@ -279,12 +279,11 @@ def servicios():
 
     if request.method == 'POST':
         id_servicio = request.form.get('id_servicio')
+        cantidad = request.form.get('cantidad')
 
         if not id_servicio or id_servicio == "0":
             flash("No se agregó ningún servicio", "warning")
-            return redirect('/dashboard_cliente')
-
-        cantidad = request.form.get('cantidad')
+            return redirect('/servicios')
 
         if not cantidad or int(cantidad) <= 0:
             flash("Cantidad inválida", "error")
@@ -630,6 +629,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
