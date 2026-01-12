@@ -170,3 +170,37 @@ tr:hover {
     min-width: 950px;
 }
 
+.form-group input,
+.form-group select {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    border-radius: 10px;
+}
+
+#filtro-nombre, #filtro-fecha {
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+#filtro-nombre:focus, #filtro-fecha:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+#filtro-nombre {
+    width: 250px;
+    margin-right: 10px;
+}
+
+#filtro-fecha {
+    width: 200px;
+}
