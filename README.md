@@ -14,6 +14,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 ## Contenido
 
 - Resumen
+- Modelo relacional
 - Arquitectura
 - Componentes principales
 - Lenguajes y tecnologías
@@ -24,6 +25,8 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 - Logs y monitoreo
 
 ---
+## Modelo relacional
+<img alt="Descripción de la imagen" src="images/modelo_relacional.png" />
 
 ## Arquitectura
 
@@ -126,6 +129,18 @@ PROYECTO/
    └─ ver_reservas_empleados.html
 ```
 
+<table width="100%" cellspacing="15" cellpadding="0" style="border-collapse: separate;">
+
+  <tr>
+    <td width="50%"><img src="images/dashboard_cliente.png" alt="Interfaz usuario 1" width="100%"></td>
+    <td width="50%"><img src="images/cancelar_reserva.png" alt="Interfaz usuario 2" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="images/dashboard_empleado.png" alt="Interfaz usuario 3" width="100%"></td>
+    <td width="50%"><img src="images/ver_reservas.png" alt="Interfaz usuario 4" width="100%"></td>
+  </tr>
+</table>
+
 ---
 
 ## Base de datos y Modelos
@@ -158,5 +173,3 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
-
-
