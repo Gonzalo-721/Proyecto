@@ -33,8 +33,16 @@
 
         <main>
             <h2>Lista de habitaciones</h2>
-
-            <table class="tabla">
+            
+            <div class="filtros">
+                <label for="filtro-nombre">Filtrar por cliente:</label>
+                <input type="text" id="filtro-nombre" placeholder="Buscar por nombre">
+                
+                <label for="filtro-fecha">Filtrar por fecha (desde):</label>
+                <input type="date" id="filtro-fecha">
+            </div>
+            <br>
+            <table class="tabla" id="tabla-reservas">
                 <thead>
                     <tr>
                         <th>ID Reserva</th>
@@ -75,9 +83,40 @@
             body.classList.toggle('dark');
             localStorage.setItem('dark-mode', body.classList.contains('dark'));
         });
+
+        document.getElementById('filtro-nombre').addEventListener('input', function() {
+            filtrarTabla();
+        });
+
+        document.getElementById('filtro-fecha').addEventListener('change', function() {
+            filtrarTabla();
+        });
+
+        function filtrarTabla() {
+            const nombreFiltro = document.getElementById('filtro-nombre').value.toLowerCase();
+            const fechaFiltro = document.getElementById('filtro-fecha').value;
+            const tabla = document.getElementById('tabla-reservas');
+            const filas = tabla.getElementsByTagName('tr');
+            
+            for (let i = 1; i < filas.length; i++) {
+                const fila = filas[i];
+                const celdas = fila.getElementsByTagName('td');
+                
+                const cliente = celdas[1].innerText.toLowerCase();
+                const fechaInicio = celdas[3].innerText;
+                
+                const nombreCoincide = cliente.includes(nombreFiltro);
+                const fechaCoincide = fechaFiltro ? fechaInicio >= fechaFiltro : true;
+
+                if (nombreCoincide && fechaCoincide) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            }
+        }
     </script>
 
 </body>
 
 </html>
-
