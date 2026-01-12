@@ -35,25 +35,24 @@
 
                 <div class="form-group">
                     <label>Servicio</label>
-                        <select name="id_servicio">
-                            <option value="">Selecciona un servicio</option>
-                            <option value="0">No quiero agregar servicios</option>
+                    <select name="id_servicio" id="id_servicio" required>
+                        <option value="">Selecciona un servicio</option>
+                        <option value="0">No quiero agregar servicios</option>
 
-                            {% for s in servicios %}
+                        {% for s in servicios %}
                             <option value="{{ s.id_servicio }}">
                                 {{ s.nombre }} - ${{ s.precio }}
                             </option>
-                            {% endfor %}
-                        </select>
-
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <div class="form-group">
                     <label>Cantidad</label>
-                    <input type="number" name="cantidad" min="1">
+                    <input type="number" name="cantidad" id="cantidad" min="1" required disabled>
                 </div>
 
-                <button type="submit" class="btn">Agregar servicio</button>
+                <button type="submit" class="btn" id="submit-btn" disabled>Agregar servicio</button>
 
             </form>
         </main>
@@ -72,28 +71,27 @@
             body.classList.toggle('dark');
             localStorage.setItem('dark-mode', body.classList.contains('dark'));
         });
-        
-    const select = document.querySelector('select[name="id_servicio"]');
-    const cantidad = document.querySelector('input[name="cantidad"]');
 
-    function toggleCantidad() {
-        if (!select.value || select.value === "0") {
-            cantidad.disabled = true;
-            cantidad.value = '';
-        } else {
-            cantidad.disabled = false;
+        const select = document.querySelector('select[name="id_servicio"]');
+        const cantidad = document.querySelector('input[name="cantidad"]');
+        const submitBtn = document.querySelector('#submit-btn');
+
+        function toggleCantidad() {
+            if (!select.value || select.value === "0") {
+                cantidad.disabled = true;
+                cantidad.value = '';
+                submitBtn.disabled = true;
+            } else {
+                cantidad.disabled = false;
+                submitBtn.disabled = false;
+            }
         }
-    }
 
-    select.addEventListener('change', toggleCantidad);
-    toggleCantidad();
+        select.addEventListener('change', toggleCantidad);
+        toggleCantidad();
+
     </script>
 
 </body>
 
 </html>
-
-
-
-
-
