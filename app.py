@@ -217,7 +217,7 @@ def detalles_reserva(id_reserva):
         total=total
     )
 
-# --------- VER DETALLES DE LAS RESERVAS (EMPLEADOS) ---------
+# --------- VER DETALLES DE LAS RESERVAS (PARA EMPLEADOS) ---------
 @app.route('/ver_reservas_empleados/<int:id_reserva>')
 @login_required
 def detalles_reserva_empleado(id_reserva):
@@ -229,14 +229,18 @@ def detalles_reserva_empleado(id_reserva):
 
     reserva = Reserva.query.options(
         joinedload(Reserva.habitacion),
-        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio) 
     ).get(id_reserva)
 
     if not reserva:
         flash("Reserva no encontrada", "error")
         return redirect('/ver_reservas')
 
-    return render_template('ver_reservas_empleados.html', reserva=reserva)
+    total_consumos = sum(c.subtotal for c in reserva.consumos)
+    precio_habitacion = reserva.habitacion.precio_noche if reserva.habitacion else 0
+    total = total_consumos + precio_habitacion 
+
+    return render_template('ver_reservas_empleados.html', reserva=reserva, total=total)
 
 # --------- PAGAR LA RESERVA ---------
 @app.route('/pago_reserva/<int:id_reserva>')
@@ -650,6 +654,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
