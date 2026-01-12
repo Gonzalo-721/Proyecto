@@ -31,8 +31,7 @@
         <main>
             <h2>Servicios disponibles</h2>
 
-            <form method="POST" action="/servicios" class="form-card">
-
+            <form id="servicios-form" method="POST" action="/servicios" class="form-card">
                 <div class="form-group">
                     <label>Servicio</label>
                     <select name="id_servicio" id="id_servicio" required>
@@ -52,9 +51,25 @@
                     <input type="number" name="cantidad" id="cantidad" min="1" required disabled>
                 </div>
 
-                <button type="submit" class="btn" id="submit-btn" disabled>Agregar servicio</button>
-
+                <button type="button" id="add-service-btn" class="btn" disabled>Agregar servicio</button>
             </form>
+
+            <h3>Servicios seleccionados:</h3>
+            <table id="servicios-table" class="tabla">
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+
+            <button type="button" id="confirm-btn" class="btn btn-success" disabled>Confirmar cambios</button>
         </main>
 
     </div>
@@ -74,19 +89,64 @@
 
         const select = document.querySelector('select[name="id_servicio"]');
         const cantidad = document.querySelector('input[name="cantidad"]');
-        const submitBtn = document.querySelector('#submit-btn');
+        const addServiceBtn = document.querySelector('#add-service-btn');
+        const confirmBtn = document.querySelector('#confirm-btn');
+        const serviciosTable = document.querySelector('#servicios-table tbody');
+
+        let selectedServices = [];
 
         function toggleCantidad() {
             if (!select.value || select.value === "0") {
                 cantidad.disabled = true;
                 cantidad.value = '';
-                submitBtn.disabled = true;
+                addServiceBtn.disabled = true;
             } else {
                 cantidad.disabled = false;
-                submitBtn.disabled = false;
+                addServiceBtn.disabled = false;
             }
         }
 
+        function updateTable() {
+            serviciosTable.innerHTML = '';
+            selectedServices.forEach((service, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${service.nombre}</td>
+                    <td>${service.cantidad}</td>
+                    <td>$${service.subtotal}</td>
+                    <td><button type="button" class="btn btn-danger" onclick="removeService(${index})">Eliminar</button></td>
+                `;
+                serviciosTable.appendChild(row);
+            });
+            confirmBtn.disabled = selectedServices.length === 0;
+        }
+
+        function addService() {
+            const servicioSeleccionado = select.options[select.selectedIndex];
+            const cantidadValue = parseInt(cantidad.value);
+
+            if (servicioSeleccionado.value && cantidadValue > 0) {
+                const servicio = {
+                    id_servicio: servicioSeleccionado.value,
+                    nombre: servicioSeleccionado.text,
+                    cantidad: cantidadValue,
+                    subtotal: cantidadValue * parseFloat(servicioSeleccionado.dataset.precio),
+                };
+
+                selectedServices.push(servicio);
+                updateTable();
+                toggleCantidad();
+                select.value = '';
+                cantidad.value = '';
+            }
+        }
+
+        function removeService(index) {
+            selectedServices.splice(index, 1);
+            updateTable();
+        }
+
+        addServiceBtn.addEventListener('click', addService);
         select.addEventListener('change', toggleCantidad);
         toggleCantidad();
 
