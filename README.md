@@ -129,7 +129,7 @@ PROYECTO/
    └─ ver_reservas_empleados.html
 ```
 
-<table width="100%" cellspacing="15" cellpadding="0" style="border-collapse: separate;">
+<table width="100%" cellspacing="10" cellpadding="0" style="border-collapse: separate;">
 
   <tr>
     <td width="50%"><img src="static/img/dashboard_cliente.png" alt="Interfaz usuario 1" width="100%"></td>
@@ -173,6 +173,7 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
 
 
 
