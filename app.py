@@ -217,7 +217,28 @@ def detalles_reserva(id_reserva):
         total=total
     )
 
-#--------- PAGAR LA RESERVA ---------
+# --------- VER DETALLES DE LAS RESERVAS (EMPLEADOS) ---------
+@app.route('/ver_reservas_empleados/<int:id_reserva>')
+@login_required
+def detalles_reserva_empleado(id_reserva):
+    usuario = Usuario.query.get(session['usuario_id'])
+    
+    if not usuario or not hasattr(usuario, 'empleado'):
+        flash("Acceso no autorizado", "error")
+        return redirect('/login')
+
+    reserva = Reserva.query.options(
+        joinedload(Reserva.habitacion),
+        joinedload(Reserva.consumos).joinedload(ConsumoServicio.servicio)
+    ).get(id_reserva)
+
+    if not reserva:
+        flash("Reserva no encontrada", "error")
+        return redirect('/ver_reservas')
+
+    return render_template('ver_reservas_empleados.html', reserva=reserva)
+
+# --------- PAGAR LA RESERVA ---------
 @app.route('/pago_reserva/<int:id_reserva>')
 @login_required
 def pago_reserva(id_reserva):
@@ -629,6 +650,7 @@ def logout():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
 
 
 
