@@ -25,7 +25,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 
 ---
 
-## Arquitectura (alto nivel)
+## Arquitectura
 
 - **Frontend**: Plantillas `Jinja2` renderizadas en el servidor + CSS nativo para estilos (modo claro/oscuro) + JavaScript vanilla para interacciones dinámicas
 - **Backend**: `Flask` manejando rutas, autenticación y lógica de negocio en `app.py`
@@ -158,4 +158,5 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
 
