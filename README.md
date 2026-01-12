@@ -3,7 +3,7 @@
 
 ---
 
-## Resumen ejecutivo
+## Resumen
 
 Sistema web integral para la gestión de reservas de hotel, administración de habitaciones y solicitud de servicios adicionales. La plataforma permite a los clientes registrarse, buscar habitaciones disponibles, realizar reservas y gestionar sus consumos de servicios. Para los empleados, ofrece herramientas para visualizar y gestionar reservas activas, habitaciones y servicios ofrecidos
 
@@ -13,7 +13,7 @@ Construida como una aplicación monolítica en Flask con SQLAlchemy (PostgreSQL)
 
 ## Contenido
 
-- Resumen ejecutivo
+- Resumen
 - Arquitectura
 - Componentes principales
 - Lenguajes y tecnologías
@@ -158,3 +158,4 @@ El sistema utiliza un esquema relacional definido en `models.py`. Las principale
 - La aplicación utiliza `flash` messages para feedback al usuario (errores, confirmaciones)
 
 ---
+
